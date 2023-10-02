@@ -106,12 +106,15 @@ FS4.add_rules([
 
 import pandas as pd
 
-df = pd.read_csv('ACI23-24_Proj1_SampleData.csv', encoding='utf-8')
+df = pd.read_csv('Proj1_TestS.csv', encoding='utf-8')
+df.to_excel('Proj1_TestS.xlsx', index=False)
 
 CLP_var_pred = []
 Critical_pred = []
 Boss_preds = []
 aux_preds = []
+
+# Verify errors in test set
 
 for index, row in df.iterrows():
     MemoryUsage = row['MemoryUsage']
@@ -134,7 +137,7 @@ for index, row in df.iterrows():
     # print(Boss_pred)
     Boss_preds.append(Boss_pred)
     
-    FS3.set_variable("Throughput", 0.05)
+    FS3.set_variable("Throughput", Throughput)
     FS3.set_variable("Latency", Latency) 
 
     aux_pred = FS3.inference()['aux']
@@ -148,11 +151,75 @@ for index, row in df.iterrows():
     # print(CLP_variation_pred)
     CLP_var_pred.append(CLP_variation_pred)
     
-df['CLP_var_pred'] = CLP_var_pred
+df['CLPVariation_pred'] = CLP_var_pred
 df['Critical'] = Critical_pred
 df['Boss'] = Boss_preds
 df['aux'] = aux_preds
 
-df['erro_CLP'] = df['CLP_var_pred'] - df['CLPVariation']
+df['erro_CLP'] = df['CLPVariation_pred'] - df['CLPVariation']
 
-df.to_excel('ACI23-24_Proj1_SampleData.xlsx', index=False)
+df.to_excel('TestResult.xlsx', index=False)
+df.to_csv('TestResult.csv', encoding='utf-8', index=False)
+
+
+def generateDataset():
+    new_df = pd.DataFrame()
+
+    range_considered = [i / 10 for i in range(11)] 
+    new_MU = []
+    new_PL = []
+    new_OT = []
+    new_IT = []
+    new_OBW = []
+    new_Lat = []
+    new_CLP_var = []
+
+    # Generate dataset
+
+    for nMU in range_considered:
+        for nPL in range_considered:
+            for nOT in range_considered:
+                for nIT in range_considered:
+                    for nOBW in range_considered:
+                        for nL in range_considered:
+                            new_MU.append(nMU)
+                            new_PL.append(nPL)
+                            new_OT.append(nOT)
+                            new_IT.append(nIT)
+                            new_OBW.append(nOBW)
+                            new_Lat.append(nL)
+                            
+                            FS1.set_variable("MemoryUsage", nMU) 
+                            FS1.set_variable("ProcessorLoad", nPL) 
+
+                            CR_pred = FS1.inference()['Critical']
+
+                            FS2.set_variable("OutBandwidth", nOBW)
+                            FS2.set_variable("Critical", CR_pred) 
+
+                            Boss_pred = FS2.inference()['Boss']
+                            
+                            nT = nOT - nIT
+                            FS3.set_variable("Throughput", nT)
+                            FS3.set_variable("Latency", nL) 
+
+                            aux_pred = FS3.inference()['aux']
+
+                            FS4.set_variable("Boss", Boss_pred) 
+                            FS4.set_variable("aux", aux_pred) 
+
+                            CLP_variation_pred = FS4.inference()['CLP_variation']
+                            new_CLP_var.append(CLP_variation_pred)
+                            
+    new_df['MemoryUsage'] = new_MU
+    new_df['ProcessorLoad'] = new_PL
+    new_df['OutNetThroughput'] = new_OT
+    new_df['InpNetThroughput'] = new_IT
+    new_df['OutBandwidth'] = new_OBW
+    new_df['Latency'] = new_Lat
+    new_df['CLP_variation'] = new_CLP_var
+  
+    new_df.to_excel('Proj1_TestS_GeneratedData.xlsx', index=False)
+    new_df.to_csv('Proj1_TestS_GeneratedData.csv', index=False, encoding=False)
+
+# generateDataset()
