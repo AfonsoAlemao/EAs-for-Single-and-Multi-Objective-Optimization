@@ -180,6 +180,8 @@ df['FinalOut'] = FinalOut_preds
 
 df['erro_CLP'] = abs(df['CLPVariation_pred'] - df['CLPVariation'])
 
+df = df.drop(columns=['V_MemoryUsage','V_ProcessorLoad','V_InpNetThroughput','V_OutNetThroughput','V_OutBandwidth','V_Latency'])
+
 df.to_excel('TestResult.xlsx', index=False)
 df.to_csv('TestResult.csv', encoding='utf-8', index=False)
 
