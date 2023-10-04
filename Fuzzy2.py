@@ -106,9 +106,9 @@ FS3.add_rules([  #### Talvez seja benefico usar med-High e med-Low para este cas
     "IF (Out IS Low) AND (Latency IS Med) THEN (FinalOut IS Med)", # was low before
     "IF (Out IS Low) AND (Latency IS High) THEN (FinalOut IS High)", # was Med before
     "IF (Out IS Med) AND (Latency IS Low) THEN (FinalOut IS Med)",
-    "IF (Out IS Med) AND (Latency IS Med) THEN (FinalOut IS Med)",
+    "IF (Out IS Med) AND (Latency IS Med) THEN (FinalOut IS High)", #finalout was Med
     "IF (Out IS Med) AND (Latency IS High) THEN (FinalOut IS High)",
-    "IF (Out IS High) AND (Latency IS Low) THEN (FinalOut IS Med)",
+    "IF (Out IS High) AND (Latency IS Low) THEN (FinalOut IS High)", #was Med
     "IF (Out IS High) AND (Latency IS Med) THEN (FinalOut IS High)",
     "IF (Out IS High) AND (Latency IS High) THEN (FinalOut IS High)",
 ])
