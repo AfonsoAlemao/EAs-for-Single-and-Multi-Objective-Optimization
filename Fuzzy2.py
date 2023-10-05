@@ -25,7 +25,7 @@ FS1.add_linguistic_variable("ProcessorLoad", LinguisticVariable([PL1, PL2, PL3],
 
 ### Critical ###
 
-CR1 = TrapezoidFuzzySet(0, 0, 0.45,  0.6, term="Low")
+CR1 = TrapezoidFuzzySet(0, 0, 0.25,  0.45, term="Low")
 CR2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
 CR3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[0,1]))
@@ -74,6 +74,7 @@ FS4.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], univ
 CLP1 = TriangleFuzzySet(-1, -1, 0, term="Negative")
 CLP2 = TriangleFuzzySet(-0.35, 0, 0.35, term="Null")
 CLP3 = TriangleFuzzySet(0, 1, 1, term="Positive")
+
 FS4.add_linguistic_variable("CLP_variation", LinguisticVariable([CLP1, CLP2, CLP3], universe_of_discourse=[-1,1]))
 
 
@@ -114,9 +115,7 @@ FS3.add_rules([  #### Talvez seja benefico usar med-High e med-Low para este cas
 ])
 
 FS4.add_rules([
-    "IF (Critical IS Low) AND (FinalOut IS Low) THEN (CLP_variation IS Positive)",
-    "IF (Critical IS Low) AND (FinalOut IS Med) THEN (CLP_variation IS Positive)",
-    "IF (Critical IS Low) AND (FinalOut IS High) THEN (CLP_variation IS Positive)",
+    "IF (Critical IS Low) THEN (CLP_variation IS Positive)",
     "IF (Critical IS Med) AND (FinalOut IS Low) THEN (CLP_variation IS Negative)",
     "IF (Critical IS Med) AND (FinalOut IS Med) THEN (CLP_variation IS Null)",
     "IF (Critical IS Med) AND (FinalOut IS High) THEN (CLP_variation IS Positive)",
