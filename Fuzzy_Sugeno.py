@@ -11,25 +11,25 @@ FS4 = FuzzySystem()
 
 ### Memory Usage ### 
 
-MU1 = TrapezoidFuzzySet(0, 0, 0.2 ,0.5, term="Low")
+MU1 = TrapezoidFuzzySet(0, 0, 0.3 ,0.6, term="Low")
 MU2 = TriangleFuzzySet(0.45, 0.6, 0.75, term="Med")
 MU3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("MemoryUsage", LinguisticVariable([MU1, MU2, MU3], universe_of_discourse=[0,1]))
 
 ### Processor Load ###
 
-PL1 = TrapezoidFuzzySet(0, 0, 0.2 ,0.5, term="Low")
+PL1 = TrapezoidFuzzySet(0, 0, 0.3 ,0.6, term="Low")
 PL2 = TriangleFuzzySet(0.45, 0.6, 0.75, term="Med")
 PL3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("ProcessorLoad", LinguisticVariable([PL1, PL2, PL3], universe_of_discourse=[0,1]))
 
 ### Critical ###
 
-CR1 = TriangleFuzzySet(0, 0, 0.5, term="Low")
-CR2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
-CR3 = TrapezoidFuzzySet(0.6, 0.9, 1, 1, term="High")
-FS1.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[0,1]))
-FS4.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[0,1]))
+CR1 = TrapezoidFuzzySet(-1, -1, -0.25, 0, term="Low")
+CR2 = TriangleFuzzySet(-0.25, 0, 0.25, term="Med")
+CR3 = TrapezoidFuzzySet(0, 0.8, 1, 1, term="High")
+FS1.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
+FS4.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 
 ### OutBandwidth ###
 
@@ -46,34 +46,27 @@ ONT2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
 ONT3 = TriangleFuzzySet(0.45, 1, 1, term="High")
 FS2.add_linguistic_variable("OutNetThroughput", LinguisticVariable([ONT1, ONT2, ONT3], universe_of_discourse=[0,1]))
 
-### Out ###
-
-O1 = TriangleFuzzySet(0, 0, 0.5, term="Low")
-O2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
-O3 = TriangleFuzzySet(0.5, 1, 1, term="High")
-FS2.add_linguistic_variable("Out", LinguisticVariable([O1, O2, O3], universe_of_discourse=[0,1]))
-FS3.add_linguistic_variable("Out", LinguisticVariable([O1, O2, O3], universe_of_discourse=[0,1]))
-
 ### Latency ###  ->>>>>> Será melhor usar uma Gaussian MF?
 
 L1 = TrapezoidFuzzySet(0, 0, 0.3, 0.5, term="Low")
-L2 = TriangleFuzzySet(0.3, 0.45, 0.65, term="Med")
-L3 = TriangleFuzzySet(0.55, 1, 1, term="High")
-FS3.add_linguistic_variable("Latency", LinguisticVariable([L1, L2, L3], universe_of_discourse=[0,1]))
+L2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
+L3 = TriangleFuzzySet(0.6, 1, 1, term="High")
+FS2.add_linguistic_variable("Latency", LinguisticVariable([L1, L2, L3], universe_of_discourse=[0,1]))
 
 ### FinalOut ###
 
-FO1 = TriangleFuzzySet(0, 0, 0.6, term="Low")
-FO2 = TriangleFuzzySet(0.4, 0.55, 0.7, term="Med")
-FO3 = TriangleFuzzySet(0.7, 1, 1, term="High")
-FS3.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[0,1]))
-FS4.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[0,1]))
+FO1 = TriangleFuzzySet(-1, -1, 0.2, term="Low")
+FO2 = TriangleFuzzySet(-0.2, -0.1, 0.4, term="Med")
+FO3 = TriangleFuzzySet(0.4, 1, 1, term="High")
+FS3.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[-1,1]))
+FS4.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[-1,1]))
 
 ### CLP_variation ###
 
 CLP1 = TriangleFuzzySet(-1, -1, 0, term="Negative")
 CLP2 = TriangleFuzzySet(-0.35, 0, 0.35, term="Null")
 CLP3 = TriangleFuzzySet(0, 1, 1, term="Positive")
+
 FS4.add_linguistic_variable("CLP_variation", LinguisticVariable([CLP1, CLP2, CLP3], universe_of_discourse=[-1,1]))
 
 
@@ -90,33 +83,37 @@ FS1.add_rules([
 ])
 
 FS2.add_rules([
-    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) THEN (Out IS High)",
-    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Med) THEN (Out IS High)",
-    "IF (OutNetThroughput IS High) AND (OutBandwidth IS High) THEN (Out IS High)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) THEN (Out IS High)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) THEN (Out IS High)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) THEN (Out IS Med)",
-    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Low) THEN (Out IS Med)",
-    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Med) THEN (Out IS Med)",
-    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS High) THEN (Out IS Med)", #was low before
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS Med) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS High) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Med) AND (Latency IS Low) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Med) AND (Latency IS Med) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Med) AND (Latency IS High) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS High) AND (Latency IS Low) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS High) AND (Latency IS Med) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS High) AND (Latency IS High) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Med) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS High) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Low) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Med) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS High) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Low) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Med) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS High) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Med) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS High) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Low) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Med) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS High) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Low) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Med) THEN (FinalOut IS High)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS High) THEN (FinalOut IS High)",
 ])
 
-FS3.add_rules([  #### Talvez seja benefico usar med-High e med-Low para este caso ####
-    "IF (Out IS Low) AND (Latency IS Low) THEN (FinalOut IS Low)",
-    "IF (Out IS Low) AND (Latency IS Med) THEN (FinalOut IS Med)", # was low before
-    "IF (Out IS Low) AND (Latency IS High) THEN (FinalOut IS High)", # was Med before
-    "IF (Out IS Med) AND (Latency IS Low) THEN (FinalOut IS Med)",
-    "IF (Out IS Med) AND (Latency IS Med) THEN (FinalOut IS High)", #finalout was Med
-    "IF (Out IS Med) AND (Latency IS High) THEN (FinalOut IS High)",
-    "IF (Out IS High) AND (Latency IS Low) THEN (FinalOut IS High)", #was Med
-    "IF (Out IS High) AND (Latency IS Med) THEN (FinalOut IS High)",
-    "IF (Out IS High) AND (Latency IS High) THEN (FinalOut IS High)",
-])
-
-FS4.add_rules([
-    "IF (Critical IS Low) AND (FinalOut IS Low) THEN (CLP_variation IS Positive)",
-    "IF (Critical IS Low) AND (FinalOut IS Med) THEN (CLP_variation IS Positive)",
-    "IF (Critical IS Low) AND (FinalOut IS High) THEN (CLP_variation IS Positive)",
+FS3.add_rules([
+    "IF (Critical IS Low) THEN (CLP_variation IS Positive)",
     "IF (Critical IS Med) AND (FinalOut IS Low) THEN (CLP_variation IS Negative)",
     "IF (Critical IS Med) AND (FinalOut IS Med) THEN (CLP_variation IS Null)",
     "IF (Critical IS Med) AND (FinalOut IS High) THEN (CLP_variation IS Positive)",
