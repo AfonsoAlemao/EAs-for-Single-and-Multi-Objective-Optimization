@@ -19,15 +19,15 @@ FS1.add_linguistic_variable("MemoryUsage", LinguisticVariable([MU1, MU2, MU3], u
 ### Processor Load ###
 
 PL1 = TrapezoidFuzzySet(0, 0, 0.2 ,0.5, term="Low")
-PL2 = TriangleFuzzySet(0.3, 0.6, 0.7, term="Med")
-PL3 = TrapezoidFuzzySet(0.6, 0.75, 1, 1, term="High")
+PL2 = TriangleFuzzySet(0.45, 0.6, 0.75, term="Med")
+PL3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("ProcessorLoad", LinguisticVariable([PL1, PL2, PL3], universe_of_discourse=[0,1]))
 
 ### Critical ###
 
-CR1 = TrapezoidFuzzySet(0, 0, 0.45,  0.6, term="Low")
+CR1 = TriangleFuzzySet(0, 0, 0.5, term="Low")
 CR2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
-CR3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
+CR3 = TrapezoidFuzzySet(0.6, 0.9, 1, 1, term="High")
 FS1.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[0,1]))
 FS4.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[0,1]))
 
@@ -57,8 +57,8 @@ FS3.add_linguistic_variable("Out", LinguisticVariable([O1, O2, O3], universe_of_
 ### Latency ###  ->>>>>> Será melhor usar uma Gaussian MF?
 
 L1 = TrapezoidFuzzySet(0, 0, 0.3, 0.5, term="Low")
-L2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
-L3 = TriangleFuzzySet(0.6, 1, 1, term="High")
+L2 = TriangleFuzzySet(0.3, 0.45, 0.65, term="Med")
+L3 = TriangleFuzzySet(0.55, 1, 1, term="High")
 FS3.add_linguistic_variable("Latency", LinguisticVariable([L1, L2, L3], universe_of_discourse=[0,1]))
 
 ### FinalOut ###
@@ -98,17 +98,17 @@ FS2.add_rules([
     "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) THEN (Out IS Med)",
     "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Low) THEN (Out IS Med)",
     "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Med) THEN (Out IS Med)",
-    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS High) THEN (Out IS Low)", #was low before
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS High) THEN (Out IS Med)", #was low before
 ])
 
 FS3.add_rules([  #### Talvez seja benefico usar med-High e med-Low para este caso ####
     "IF (Out IS Low) AND (Latency IS Low) THEN (FinalOut IS Low)",
     "IF (Out IS Low) AND (Latency IS Med) THEN (FinalOut IS Med)", # was low before
     "IF (Out IS Low) AND (Latency IS High) THEN (FinalOut IS High)", # was Med before
-    "IF (Out IS Med) AND (Latency IS Low) THEN (FinalOut IS Low)",
-    "IF (Out IS Med) AND (Latency IS Med) THEN (FinalOut IS Med)", #finalout was Med
+    "IF (Out IS Med) AND (Latency IS Low) THEN (FinalOut IS Med)",
+    "IF (Out IS Med) AND (Latency IS Med) THEN (FinalOut IS High)", #finalout was Med
     "IF (Out IS Med) AND (Latency IS High) THEN (FinalOut IS High)",
-    "IF (Out IS High) AND (Latency IS Low) THEN (FinalOut IS Med)", #was Med
+    "IF (Out IS High) AND (Latency IS Low) THEN (FinalOut IS High)", #was Med
     "IF (Out IS High) AND (Latency IS Med) THEN (FinalOut IS High)",
     "IF (Out IS High) AND (Latency IS High) THEN (FinalOut IS High)",
 ])
