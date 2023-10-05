@@ -11,16 +11,16 @@ FS4 = FuzzySystem()
 
 ### Memory Usage ### 
 
-MU1 = TrapezoidFuzzySet(0, 0, 0.2 ,0.5, term="Low")
+MU1 = TrapezoidFuzzySet(0, 0, 0.3 ,0.6, term="Low")
 MU2 = TriangleFuzzySet(0.45, 0.6, 0.75, term="Med")
 MU3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("MemoryUsage", LinguisticVariable([MU1, MU2, MU3], universe_of_discourse=[0,1]))
 
 ### Processor Load ###
 
-PL1 = TrapezoidFuzzySet(0, 0, 0.2 ,0.5, term="Low")
-PL2 = TriangleFuzzySet(0.3, 0.6, 0.7, term="Med")
-PL3 = TrapezoidFuzzySet(0.6, 0.75, 1, 1, term="High")
+PL1 = TrapezoidFuzzySet(0, 0, 0.3 ,0.6, term="Low")
+PL2 = TriangleFuzzySet(0.45, 0.6, 0.75, term="Med")
+PL3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("ProcessorLoad", LinguisticVariable([PL1, PL2, PL3], universe_of_discourse=[0,1]))
 
 ### Critical ###
