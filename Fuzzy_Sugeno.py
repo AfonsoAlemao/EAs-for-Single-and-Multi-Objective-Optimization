@@ -171,7 +171,6 @@ for index, row in df.iterrows():
     
 df['CLPVariation_pred'] = CLP_var_pred
 df['Critical'] = Critical_pred
-df['Out'] = Out_preds
 df['FinalOut'] = FinalOut_preds
 
 df['erro_CLP'] = abs(df['CLPVariation_pred'] - df['CLPVariation'])
