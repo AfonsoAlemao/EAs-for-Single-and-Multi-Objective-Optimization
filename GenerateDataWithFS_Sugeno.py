@@ -1,4 +1,5 @@
 from Fuzzy_Sugeno import *
+import random
 
 def generateDataset():
     new_df = pd.DataFrame()

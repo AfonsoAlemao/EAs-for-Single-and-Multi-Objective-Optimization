@@ -1,13 +1,10 @@
 from simpful import *
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import random
 
 FS1 = FuzzySystem()
 FS2 = FuzzySystem()
 FS3 = FuzzySystem()
-
 
 ### Memory Usage ### 
 
@@ -26,8 +23,6 @@ plt.xlim([0, 1])
 plt.title('Membership Function Memory Usage')
 plt.xlabel('Memory Usage')
 plt.ylabel('MF')
-# plt.show()
-
 
 ### Processor Load ###
 
@@ -46,7 +41,6 @@ plt.xlim([0, 1])
 plt.title('Membership Function Processor Load')
 plt.xlabel('Processor Load')
 plt.ylabel('MF')
-# plt.show()
 
 ### Critical ###
 
@@ -66,7 +60,7 @@ plt.xlim([-1, 1])
 plt.title('Membership Function Critical')
 plt.xlabel('Critical')
 plt.ylabel('MF')
-# plt.show()
+
 
 ### OutBandwidth ###
 
@@ -85,65 +79,65 @@ plt.xlim([0, 1])
 plt.title('Membership Function OutBandwidth')
 plt.xlabel('OutBandwidth')
 plt.ylabel('MF')
-# plt.show()
+
 
 ### OutNetThroughput ###
 
 ONT1 = TriangleFuzzySet(0, 0, 0.5, term="Low")
 ONT2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
-ONT3 = TriangleFuzzySet(0.45, 1, 1, term="High")
+ONT3 = TriangleFuzzySet(0.5, 1, 1, term="High")
 FS2.add_linguistic_variable("OutNetThroughput", LinguisticVariable([ONT1, ONT2, ONT3], universe_of_discourse=[0,1]))
 
 plt.figure(4)
 plt.plot([0, 0, 0.5], [0,1,0])
 plt.plot([0.3, 0.5, 0.7], [0,1,0])
-plt.plot([0.45, 1, 1], [0,1,0])
+plt.plot([0.5, 1, 1], [0,1,0])
 plt.legend(['Low', 'Med', 'High'])
 plt.ylim([0, 1.05])
 plt.xlim([0, 1])
 plt.title('Membership Function OutNetThroughput')
 plt.xlabel('OutNetThroughput')
 plt.ylabel('MF')
-# plt.show()
 
-### Latency ###  ->>>>>> Será melhor usar uma Gaussian MF?
+
+### Latency ### 
 
 L1 = TrapezoidFuzzySet(0, 0, 0.3, 0.5, term="Low")
 L2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
-L3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
+L3 = TrapezoidFuzzySet(0.5, 0.7, 1, 1, term="High")
 FS2.add_linguistic_variable("Latency", LinguisticVariable([L1, L2, L3], universe_of_discourse=[0,1]))
 
 plt.figure(5)
 plt.plot([0, 0, 0.3, 0.5], [0,1,1,0])
 plt.plot([0.3, 0.5, 0.7], [0,1,0])
-plt.plot([0.6, 0.8, 1, 1], [0,1,1,0])
+plt.plot([0.5, 0.7, 1, 1], [0,1,1,0])
 plt.legend(['Low', 'Med', 'High'])
 plt.ylim([0, 1.05])
 plt.xlim([0, 1])
 plt.title('Membership Function Latency')
 plt.xlabel('Latency')
 plt.ylabel('MF')
-# plt.show()
+
 
 ### FinalOut ###
 
-FO1 = TriangleFuzzySet(-1, -1, 0.2, term="Low")
-FO2 = TriangleFuzzySet(-0.2, -0.1, 0.4, term="Med")
-FO3 = TriangleFuzzySet(0.4, 1, 1, term="High")
+FO1 = TriangleFuzzySet(-1, -1, 0, term="Low")
+FO2 = TriangleFuzzySet(-0.4, 0, 0.4, term="Med")
+FO3 = TriangleFuzzySet(0, 1, 1, term="High")
 FS2.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[-1,1]))
 FS3.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[-1,1]))
 
 plt.figure(6)
-plt.plot([-1, -1, 0.2], [0,1,0])
-plt.plot([-0.2, -0.1, 0.4], [0,1,0])
-plt.plot([0.4, 1, 1], [0,1,0])
+plt.plot([-1, -1, 0], [0,1,0])
+plt.plot([-0.4, 0, 0.4], [0,1,0])
+plt.plot([0, 1, 1], [0,1,0])
 plt.legend(['Low', 'Med', 'High'])
 plt.ylim([0, 1.05])
 plt.xlim([-1, 1])
 plt.title('Membership Function FinalOut')
 plt.xlabel('FinalOut')
 plt.ylabel('MF')
-# plt.show()
+
 
 ### CLP_variation ###
 
@@ -163,7 +157,7 @@ plt.xlim([-1, 1])
 plt.title('Membership Function CLP Variation')
 plt.xlabel('CLP Variation')
 plt.ylabel('MF')
-# plt.show()
+plt.show()
 
 FS1.set_output_function("High_Critical", "max(MemoryUsage, ProcessorLoad)*2-1")
 FS1.set_output_function("Regular", "((MemoryUsage + ProcessorLoad) / 2)*2-1")
@@ -171,9 +165,9 @@ FS1.set_output_function("Low_Critical", "((MemoryUsage + ProcessorLoad) / 8)*2-1
 
 FS1.add_rules([
     "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Low) THEN (Critical IS Low_Critical)",
-    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Med) THEN (Critical IS Low_Critical)", # was Med
+    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Med) THEN (Critical IS Low_Critical)",
     "IF (MemoryUsage IS Low) AND (ProcessorLoad IS High) THEN (Critical IS High_Critical)", 
-    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Low) THEN (Critical IS Low_Critical)", # was Med 
+    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Low) THEN (Critical IS Low_Critical)",
     "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Med) THEN (Critical IS Regular)",
     "IF (MemoryUsage IS Med) AND (ProcessorLoad IS High) THEN (Critical IS High_Critical)",
     "IF (MemoryUsage IS High) AND (ProcessorLoad IS Low) THEN (Critical IS High_Critical)",
@@ -181,10 +175,11 @@ FS1.add_rules([
     "IF (MemoryUsage IS High) AND (ProcessorLoad IS High) THEN (Critical IS High_Critical)",
 ])
 
-FS2.set_output_function("HIGH_LAT", "max(min((0.0*(1-OutNetThroughput) + 0.05*(1-OutBandwidth) + 1*Latency+0.1)*2-1, 1), -1)")
-FS2.set_output_function("LOW_OBW", "max(min((0.4*(1-OutNetThroughput) + 0.9*(1-OutBandwidth) + 0.5*Latency)*2-1, 1), -1)")
-FS2.set_output_function("LOW_ONT", "max(min((0.6*(1-OutNetThroughput) + 0.2*(1-OutBandwidth) + 0.9*Latency)*2-1, 1), -1)")
-FS2.set_output_function("OTHER", "max(min((0.6*(1-OutNetThroughput) + 0.3*(1-OutBandwidth) + 0.63*Latency)*2-1, 1), -1)")
+# x * 2 - 1: normalize x values from [0, 1] to [-1, 1]
+FS2.set_output_function("HIGH_LAT", "max(min((0.0 * (1 - OutNetThroughput) + 0.05 * (1 - OutBandwidth) + 1 * Latency + 0.1) * 2 - 1, 1), -1)")
+FS2.set_output_function("LOW_OBW", "max(min((0.4 * (1 - OutNetThroughput) + 0.9 * (1 - OutBandwidth) + 0.5 * Latency) * 2 - 1, 1), -1)")
+FS2.set_output_function("LOW_ONT", "max(min((0.6 * (1 - OutNetThroughput) + 0.2 * (1 - OutBandwidth) + 0.9 * Latency) * 2 - 1, 1), -1)")
+FS2.set_output_function("OTHER", "max(min((0.6 * (1 - OutNetThroughput) + 0.3 * (1 - OutBandwidth) + 0.63 * Latency) * 2 - 1, 1), -1)")
 
 FS2.add_rules([
     "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS LOW_OBW)",
@@ -216,8 +211,8 @@ FS2.add_rules([
     "IF (OutNetThroughput IS Low) AND (OutBandwidth IS High) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
 ])
 
-FS3.set_output_function("VERY_CRITICAL", "-0.91*Critical + 0.09*FinalOut")
-FS3.set_output_function("NOT_CRITICAL", "-0.15*Critical + FinalOut*0.85")
+FS3.set_output_function("VERY_CRITICAL", "-0.91 * Critical + 0.09 * FinalOut")
+FS3.set_output_function("NOT_CRITICAL", "-0.15 * Critical + FinalOut * 0.85")
 
 FS3.add_rules([
     "IF (Critical IS Low) THEN (CLP_variation IS VERY_CRITICAL)",
@@ -227,7 +222,7 @@ FS3.add_rules([
     "IF (Critical IS High) AND (FinalOut IS Low) THEN (CLP_variation IS VERY_CRITICAL)",
     "IF (Critical IS High) AND (FinalOut IS Med) THEN (CLP_variation IS VERY_CRITICAL)",
     "IF (Critical IS High) AND (FinalOut IS High) THEN (CLP_variation IS VERY_CRITICAL)",
-	])
+])
 
 def CLPVar_prediction(MU, PL, OT, OBW, L):
     FS1.set_variable("MemoryUsage", MU) 
