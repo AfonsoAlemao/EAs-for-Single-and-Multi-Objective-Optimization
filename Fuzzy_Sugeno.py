@@ -24,9 +24,9 @@ FS1.add_linguistic_variable("ProcessorLoad", LinguisticVariable([PL1, PL2, PL3],
 
 ### Critical ###
 
-CR1 = TrapezoidFuzzySet(-1, -1, -0.8, -0.6, term="Low")
+CR1 = TrapezoidFuzzySet(-1, -1, -0.6, -0.5, term="Low")
 CR2 = TrapezoidFuzzySet(-0.7, -0.35, 0.35, 0.7, term="Med")
-CR3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
+CR3 = TrapezoidFuzzySet(0.5, 0.6, 1, 1, term="High")
 FS1.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 FS3.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 
@@ -70,12 +70,13 @@ FS3.add_linguistic_variable("CLP_variation", LinguisticVariable([CLP1, CLP2, CLP
 
 FS1.set_output_function("High_Critical", "max(MemoryUsage, ProcessorLoad)*2-1")
 FS1.set_output_function("Regular", "((MemoryUsage + ProcessorLoad) / 2)*2-1")
+FS1.set_output_function("Low_Critical", "((MemoryUsage + ProcessorLoad) / 8)*2-1")
 
 FS1.add_rules([
-    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Low) THEN (Critical IS Regular)",
-    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Med) THEN (Critical IS Regular)", # was Med
+    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Low) THEN (Critical IS Low_Critical)",
+    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Med) THEN (Critical IS Low_Critical)", # was Med
     "IF (MemoryUsage IS Low) AND (ProcessorLoad IS High) THEN (Critical IS High_Critical)", 
-    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Low) THEN (Critical IS Regular)", # was Med 
+    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Low) THEN (Critical IS Low_Critical)", # was Med 
     "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Med) THEN (Critical IS Regular)",
     "IF (MemoryUsage IS Med) AND (ProcessorLoad IS High) THEN (Critical IS High_Critical)",
     "IF (MemoryUsage IS High) AND (ProcessorLoad IS Low) THEN (Critical IS High_Critical)",
@@ -83,10 +84,10 @@ FS1.add_rules([
     "IF (MemoryUsage IS High) AND (ProcessorLoad IS High) THEN (Critical IS High_Critical)",
 ])
 
-FS2.set_output_function("HIGH_LAT", "max(min((0.0*(1-OutNetThroughput) + 0.05*(1-OutBandwidth) + 0.9*Latency+0.1)*2-1, 1), -1)")
+FS2.set_output_function("HIGH_LAT", "max(min((0.0*(1-OutNetThroughput) + 0.05*(1-OutBandwidth) + 1*Latency+0.1)*2-1, 1), -1)")
 FS2.set_output_function("LOW_OBW", "max(min((0.4*(1-OutNetThroughput) + 0.9*(1-OutBandwidth) + 0.5*Latency)*2-1, 1), -1)")
 FS2.set_output_function("LOW_ONT", "max(min((0.6*(1-OutNetThroughput) + 0.2*(1-OutBandwidth) + 0.9*Latency)*2-1, 1), -1)")
-FS2.set_output_function("OTHER", "max(min((0.75*(1-OutNetThroughput) + 0.18*(1-OutBandwidth) + 0.73*Latency)*2-1, 1), -1)")
+FS2.set_output_function("OTHER", "max(min((0.6*(1-OutNetThroughput) + 0.3*(1-OutBandwidth) + 0.63*Latency)*2-1, 1), -1)")
 
 FS2.add_rules([
     "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS LOW_OBW)",
