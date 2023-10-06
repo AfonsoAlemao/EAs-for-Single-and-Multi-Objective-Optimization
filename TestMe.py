@@ -22,8 +22,6 @@ def CLPVar_prediction(MU, PL, OT, OBW, L):
 
     return FS3.inference()['CLP_variation']
 
-plot_figures = False
-
 FS1 = FuzzySystem()
 FS2 = FuzzySystem()
 FS3 = FuzzySystem()
@@ -179,9 +177,7 @@ plt.xlim([-1, 1])
 plt.title('Membership Function CLP Variation')
 plt.xlabel('CLP Variation')
 plt.ylabel('MF')
-
-if plot_figures:
-    plt.show()
+plt.show()
 
 FS1.set_output_function("High_Critical", "max(MemoryUsage, ProcessorLoad)*2-1")
 FS1.set_output_function("Regular", "((MemoryUsage + ProcessorLoad) / 2)*2-1")
