@@ -57,29 +57,22 @@ def MLP_testing(clf, X_test, y_test):
     
     
 df = pd.read_csv('Proj1_TestS_GeneratedData.csv', encoding='utf-8')
-# df = df.drop(columns=['V_MemoryUsage','V_ProcessorLoad','V_InpNetThroughput','V_OutNetThroughput','V_OutBandwidth','V_Latency', 'InpNetThroughput'])
-# print(df)
 
 y = (np.array(df['CLPVariation']))
-# print(y)
-
 X = (np.array(df))[:,:-1]
-
-# print(X)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 X_train2 = X_train
 X_test2 = X_test
-# MemoryUsage:0,ProcessorLoad: 1,InpNetThroughput: 2,OutNetThroughput: 3,OutBandwidth: 4,Latency: 5
-# V_MemoryUsage: 6,V_ProcessorLoad: 7,V_InpNetThroughput: 8,V_OutNetThroughput: 9,
-# V_OutBandwidth: 10,V_Latency: 11,CLPVariation: 12
 
+# Indexes meaning:
+# MemoryUsage: 0, ProcessorLoad: 1, InpNetThroughput: 2, OutNetThroughput: 3, OutBandwidth: 4, Latency: 5
+# V_MemoryUsage: 6,V_ProcessorLoad: 7,V_InpNetThroughput: 8,V_OutNetThroughput: 9,
+# V_OutBandwidth: 10, V_Latency: 11, CLPVariation: 12
 
 X_train = np.delete(X_train, [2,6,7,8,9,10],axis=1)
 X_test = np.delete(X_test, [2,6,7,8,9,10],axis=1)
-
-print(X_train)
 
 clf = MLP_training(X_train, y_train)
 
@@ -104,15 +97,11 @@ df2['CLPVariation_pred'] = ypred
 df2.to_excel('MLP_Results.xlsx', index=False)
 df2.to_csv('MLP_Results.csv', index=False, encoding='utf-8')
 
-
-##################### For the initial provided dataset ###################################################################
+##################### For the initial provided dataset #####################
 
 df_testS = pd.read_csv('Proj1_TestS.csv', encoding='utf-8')
-# df_testS = df_testS.drop(columns=['V_MemoryUsage','V_ProcessorLoad','V_InpNetThroughput','V_OutNetThroughput','V_OutBandwidth','V_Latency', 'InpNetThroughput'])
 
 y_testS = (np.array(df_testS['CLPVariation']))
-
-
 X_testS = (np.array(df_testS))[:,:-1]
 
 X_testS2 = np.delete(X_testS, [2,6,7,8,9,10],axis=1)

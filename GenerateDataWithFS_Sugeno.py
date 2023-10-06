@@ -15,7 +15,7 @@ def generateDataset():
     new_IT = []
 
     random.seed(40)
-    random_numbers = [random.uniform(-0.2, 0.2) for _ in range(18750)]
+    random_numbers = [random.uniform(-0.2, 0.2) for _ in range(6144)]
     kk = 0
     
     # Generate dataset
@@ -52,7 +52,7 @@ def generateDataset():
     new_VOT = []
     new_VOBW = []
     new_VL = []
-    
+        
     for index, row in new_df.iterrows():
         if index == 0:
             new_VMU.append(0)

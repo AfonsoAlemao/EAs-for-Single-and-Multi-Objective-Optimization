@@ -2,6 +2,7 @@ from simpful import *
 import pandas as pd
 import matplotlib.pyplot as plt
 
+plot_figures = False
 
 FS1 = FuzzySystem()
 FS2 = FuzzySystem()
@@ -158,7 +159,9 @@ plt.xlim([-1, 1])
 plt.title('Membership Function CLP Variation')
 plt.xlabel('CLP Variation')
 plt.ylabel('MF')
-# plt.show()
+
+if plot_figures:
+    plt.show()
 
 FS1.set_output_function("High_Critical", "max(MemoryUsage, ProcessorLoad)*2-1")
 FS1.set_output_function("Regular", "((MemoryUsage + ProcessorLoad) / 2)*2-1")
@@ -271,4 +274,3 @@ df['erro_CLP'] = abs(df['CLPVariation_pred'] - df['CLPVariation'])
 
 df.to_excel('TestResult.xlsx', index=False)
 df.to_csv('TestResult.csv', encoding='utf-8', index=False)
-
