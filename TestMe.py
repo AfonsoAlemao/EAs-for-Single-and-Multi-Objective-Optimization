@@ -365,7 +365,9 @@ from sklearn.model_selection import GridSearchCV
 
 
 def MLP_training(X_train, y_train):
-    mlp_gs = MLPRegressor(max_iter=1000, verbose=False)
+    mlp_gs = MLPRegressor(max_iter=1000, verbose=False, early_stopping=True, n_iter_no_change=10) 
+    # n_iter_no_change:patience of early stopping
+    
     parameter_space = {
         'regressor__activation': ['tanh', 'relu', 'logistic'],
         'regressor__solver': ['sgd', 'adam'],
@@ -373,8 +375,6 @@ def MLP_training(X_train, y_train):
         'regressor__learning_rate_init': [0.01, 0.1, 0.05],
         'regressor__learning_rate': ['constant', 'adaptive'],
         'regressor__hidden_layer_sizes': [(12,12,12),(10,10,10), (8,6,3), (6,4,2), (4,5,4),(4,3,3),(8),(9,6),(8,7,6)],
-        'regressor__early_stopping': True,
-        'n_iter_no_change': 10 # patience of early stopping
     }
     
 #   Size of Input layer = 5 > Size of Hidden layer  > Size of Output layer = 1
@@ -387,7 +387,7 @@ def MLP_training(X_train, y_train):
         ('regressor', mlp_gs)  # MLPRegressor step
     ])
 
-    clf = GridSearchCV(pipeline, parameter_space, n_jobs=-1, cv=5, verbose=False)
+    clf = GridSearchCV(pipeline, parameter_space, n_jobs=-1, cv=5, verbose=3)
     clf.fit(X_train, y_train) # X is train samples and y is the corresponding labels
 
     print('Best parameters found:\n', clf.best_params_)
