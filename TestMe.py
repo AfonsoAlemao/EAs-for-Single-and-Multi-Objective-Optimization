@@ -396,7 +396,7 @@ def MLP_training(X_train, y_train):
     
     return clf
 
-def MLP_testing(clf, X_test, y_test): 
+def MLP_testing(clf, X_test, y_test, datasetType): 
     y_true, y_pred = y_test , clf.predict(X_test)
 
     for index, element in enumerate(y_pred):
@@ -405,7 +405,7 @@ def MLP_testing(clf, X_test, y_test):
         elif(element < -1):
             y_pred[index] = -1
         
-    print('Results on the test set:')
+    print('Results on the test set from {}:'.format(datasetType))
     print('Mean Squared Error = {}'.format(mean_squared_error(y_true, y_pred)))
     print('Root Mean Squared Error = {}'.format(mean_absolute_error(y_true, y_pred)))
     print('Mean Absolute Error = {}'.format(mean_squared_error(y_true, y_pred, squared=False)))
@@ -433,7 +433,7 @@ X_test = np.delete(X_test, [2,6,7,8,9,10],axis=1)
 
 clf = MLP_training(X_train, y_train)
 
-ypred = MLP_testing(clf, X_test, y_test)
+ypred = MLP_testing(clf, X_test, y_test, 'generated dataset by fuzzy system')
 
 df2 = pd.DataFrame()
 df2['MemoryUsage'] = X_test2[:,0]
@@ -462,7 +462,7 @@ X_testS = (np.array(df))[:,:-1]
 
 X_testS2 = np.delete(X_testS, [2,6,7,8,9,10],axis=1)
 
-ypredNN = MLP_testing(clf, X_testS2, y_testS)
+ypredNN = MLP_testing(clf, X_testS2, y_testS, 'initial provided dataset')
 
 df['CLPVariation_FIS'] = CLP_var_pred_FIS
 df['CLPVariation_NN'] = ypredNN
