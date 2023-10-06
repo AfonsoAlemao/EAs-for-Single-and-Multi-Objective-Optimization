@@ -42,15 +42,14 @@ def MLP_testing(clf):
     
     return y_pred
     
-
-import pandas as pd
-
-df = pd.read_csv('ACI23-24_Proj1_SampleData_new.csv', encoding='utf-8')
+    
+df = pd.read_csv('Proj1_TestS_GeneratedData.csv', encoding='utf-8')
+df = df.drop(columns=['V_MemoryUsage','V_ProcessorLoad','V_InpNetThroughput','V_OutNetThroughput','V_OutBandwidth','V_Latency', 'InpNetThroughput'])
 
 y = (np.array(df))[:,-1]
 X = (np.array(df))[:,:-1]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)s
 
 clf = MLP_training(X_train, y_train)
 
