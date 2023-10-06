@@ -82,7 +82,7 @@ def generateDataset():
     new_df['V_OutNetThroughput'] = new_VOT
     new_df['V_OutBandwidth'] = new_VOBW
     new_df['V_Latency'] = new_VL
-    new_df['CLP_variation'] = new_CLP_var
+    new_df['CLPVariation'] = new_CLP_var
 
   
     new_df.to_excel('Proj1_TestS_GeneratedData.xlsx', index=False)
