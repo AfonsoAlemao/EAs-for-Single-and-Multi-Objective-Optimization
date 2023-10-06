@@ -372,8 +372,8 @@ def MLP_training(X_train, y_train):
         'regressor__activation': ['tanh', 'relu', 'logistic'],
         'regressor__solver': ['sgd', 'adam'],
         'regressor__alpha': [0.001, 0.05, 0.01, 0],
-        'regressor__learning_rate_init': [0.01, 0.1, 0.05],
         'regressor__learning_rate': ['constant', 'adaptive'],
+        'regressor__learning_rate_init': [0.01, 0.1, 0.05],
         'regressor__hidden_layer_sizes': [(12,12,12),(10,10,10), (8,6,3), (6,4,2), (4,5,4),(4,3,3),(8),(9,6),(8,7,6)],
     }
 
