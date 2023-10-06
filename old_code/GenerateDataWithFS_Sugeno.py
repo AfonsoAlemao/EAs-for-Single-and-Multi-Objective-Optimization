@@ -1,4 +1,4 @@
-from Fuzzy_Sugeno import CLPVar_prediction
+from old_code.Fuzzy_Sugeno import CLPVar_prediction
 import pandas as pd
 import random
 
