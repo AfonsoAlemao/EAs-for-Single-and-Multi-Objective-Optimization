@@ -211,8 +211,8 @@ FS2.add_rules([
     "IF (OutNetThroughput IS Low) AND (OutBandwidth IS High) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
 ])
 
-FS3.set_output_function("VERY_CRITICAL", "-0.91 * Critical + 0.09 * FinalOut")
-FS3.set_output_function("NOT_CRITICAL", "-0.15 * Critical + FinalOut * 0.85")
+FS3.set_output_function("VERY_CRITICAL", "max(min(-0.91 * Critical + 0.09 * FinalOut, 1),-1)")
+FS3.set_output_function("NOT_CRITICAL", "max(min(-0.15 * Critical + FinalOut * 0.85, 1),-1)")
 
 FS3.add_rules([
     "IF (Critical IS Low) THEN (CLP_variation IS VERY_CRITICAL)",

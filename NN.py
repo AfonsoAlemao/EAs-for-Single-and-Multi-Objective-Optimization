@@ -71,8 +71,8 @@ X_test2 = X_test
 # V_OutBandwidth: 10,V_Latency: 11,CLP_variation: 12
 
 
-X_train = np.delete(X_train, [1,5,6,7,8,9,10],axis=1)
-X_test = np.delete(X_test, [1,5,6,7,8,9,10],axis=1)
+X_train = np.delete(X_train, [2,6,7,8,9,10],axis=1)
+X_test = np.delete(X_test, [2,6,7,8,9,10],axis=1)
 
 print(X_train)
 

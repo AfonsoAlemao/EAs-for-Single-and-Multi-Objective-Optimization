@@ -5,7 +5,7 @@ import random
 def generateDataset():
     new_df = pd.DataFrame()
 
-    range_considered = [0.2 + i / 5 for i in range(5)]
+    range_considered = [0.2 + i / 5 for i in range(4)]
     new_MU = []
     new_PL = []
     new_OT = []
