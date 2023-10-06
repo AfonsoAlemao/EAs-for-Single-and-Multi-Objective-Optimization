@@ -14,7 +14,7 @@ from sklearn.model_selection import GridSearchCV
 def MLP_training(X_train, y_train):
     mlp_gs = MLPRegressor(max_iter=1000, verbose=False)
     parameter_space = {
-        'regressor__activation': ['tanh', 'relu'],
+        'regressor__activation': ['tanh', 'relu', 'logistic'],
         'regressor__solver': ['sgd', 'adam'],
         'regressor__alpha': [0.001, 0.05, 0.01],
         'regressor__learning_rate_init': [0.01, 0.1, 0.05],
