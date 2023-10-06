@@ -387,7 +387,8 @@ def MLP_training(X_train, y_train):
         ('regressor', mlp_gs)  # MLPRegressor step
     ])
 
-    clf = GridSearchCV(pipeline, parameter_space, n_jobs=-1, cv=5, verbose=3)
+    clf = GridSearchCV(pipeline, parameter_space, n_jobs=-1, cv=5, verbose=False, scoring='neg_mean_squared_error')
+    
     clf.fit(X_train, y_train) # X is train samples and y is the corresponding labels
 
     print('Best parameters found:\n', clf.best_params_)
