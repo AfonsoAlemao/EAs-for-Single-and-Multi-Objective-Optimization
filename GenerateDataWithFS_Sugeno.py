@@ -1,4 +1,5 @@
-from Fuzzy_Sugeno import *
+from Fuzzy_Sugeno import CLPVar_prediction
+import pandas as pd
 import random
 
 def generateDataset():
@@ -14,7 +15,7 @@ def generateDataset():
     new_IT = []
 
     random.seed(40)
-    random_numbers = [random.uniform(-0.2, 0.2) for _ in range(20000)]
+    random_numbers = [random.uniform(-0.2, 0.2) for _ in range(18750)]
     kk = 0
     
     # Generate dataset
@@ -86,5 +87,5 @@ def generateDataset():
   
     new_df.to_excel('Proj1_TestS_GeneratedData.xlsx', index=False)
     new_df.to_csv('Proj1_TestS_GeneratedData.csv', index=False, encoding='utf-8')
-
+    
 generateDataset()
