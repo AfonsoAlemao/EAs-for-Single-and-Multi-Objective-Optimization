@@ -24,8 +24,8 @@ FS1.add_linguistic_variable("ProcessorLoad", LinguisticVariable([PL1, PL2, PL3],
 
 ### Critical ###
 
-CR1 = TrapezoidFuzzySet(-1, -1, -0.25, 0, term="Low")
-CR2 = TriangleFuzzySet(-0.25, 0, 0.25, term="Med")
+CR1 = TrapezoidFuzzySet(-1, -1, -0.8, 0, term="Low")
+CR2 = TrapezoidFuzzySet(-0.7, -0.35, 0.35, 0.7, term="Med")
 CR3 = TrapezoidFuzzySet(0, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 FS3.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
@@ -68,54 +68,58 @@ CLP3 = TriangleFuzzySet(0, 1, 1, term="Positive")
 
 FS3.add_linguistic_variable("CLP_variation", LinguisticVariable([CLP1, CLP2, CLP3], universe_of_discourse=[-1,1]))
 
+FS1.set_output_function("High_Critical", "max(MemoryUsage, ProcessorLoad)*2-1")
+FS1.set_output_function("Regular", "((MemoryUsage + ProcessorLoad) / 2)*2-1")
 
 FS1.add_rules([
-    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Low) THEN (Critical IS Low)",
-    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Med) THEN (Critical IS Low)", # was Med
-    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS High) THEN (Critical IS High)", 
-    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Low) THEN (Critical IS Low)", # was Med 
-    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Med) THEN (Critical IS Low)",
-    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS High) THEN (Critical IS High)",
-    "IF (MemoryUsage IS High) AND (ProcessorLoad IS Low) THEN (Critical IS High)",
-    "IF (MemoryUsage IS High) AND (ProcessorLoad IS Med) THEN (Critical IS High)",
-    "IF (MemoryUsage IS High) AND (ProcessorLoad IS High) THEN (Critical IS High)",
+    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Low) THEN (Critical IS Regular)",
+    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Med) THEN (Critical IS Regular)", # was Med
+    "IF (MemoryUsage IS Low) AND (ProcessorLoad IS High) THEN (Critical IS High_Critical)", 
+    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Low) THEN (Critical IS Regular)", # was Med 
+    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS Med) THEN (Critical IS Regular)",
+    "IF (MemoryUsage IS Med) AND (ProcessorLoad IS High) THEN (Critical IS High_Critical)",
+    "IF (MemoryUsage IS High) AND (ProcessorLoad IS Low) THEN (Critical IS High_Critical)",
+    "IF (MemoryUsage IS High) AND (ProcessorLoad IS Med) THEN (Critical IS High_Critical)",
+    "IF (MemoryUsage IS High) AND (ProcessorLoad IS High) THEN (Critical IS High_Critical)",
 ])
 
-FS2.set_output_function("HIGH_LAT", "min(0.15*OutNetThroughput + OutBandwidth*0.25 + 0.8*Latency, 1)")
-FS2.set_output_function("NOT_RELEVANT_LAT", "0.2*OutNetThroughput + OutBandwidth*0.5+ 0.2*Latency")
+FS2.set_output_function("HIGH_LAT", "max(min((0.0*(1-OutNetThroughput) + 0.05*(1-OutBandwidth) + 0.9*Latency+0.1)*2-1, 1), -1)")
+FS2.set_output_function("LOW_OBW", "max(min((0.4*(1-OutNetThroughput) + 0.9*(1-OutBandwidth) + 0.5*Latency)*2-1, 1), -1)")
+FS2.set_output_function("LOW_ONT", "max(min((0.6*(1-OutNetThroughput) + 0.2*(1-OutBandwidth) + 0.9*Latency)*2-1, 1), -1)")
+FS2.set_output_function("OTHER", "max(min((0.75*(1-OutNetThroughput) + 0.18*(1-OutBandwidth) + 0.73*Latency)*2-1, 1), -1)")
 
 FS2.add_rules([
-    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS Med) THEN (FinalOut IS NOT_RELEVANT_LAT)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS LOW_OBW)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS Med) THEN (FinalOut IS LOW_OBW)",
     "IF (OutNetThroughput IS High) AND (OutBandwidth IS Low) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Med) AND (Latency IS Low) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Med) AND (Latency IS Med) THEN (FinalOut IS NOT_RELEVANT_LAT)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Med) AND (Latency IS Low) THEN (FinalOut IS OTHER)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS Med) AND (Latency IS Med) THEN (FinalOut IS OTHER)",
     "IF (OutNetThroughput IS High) AND (OutBandwidth IS Med) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS High) AND (OutBandwidth IS High) AND (Latency IS Low) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS High) AND (OutBandwidth IS High) AND (Latency IS Med) THEN (FinalOut IS NOT_RELEVANT_LAT)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS High) AND (Latency IS Low) THEN (FinalOut IS OTHER)",
+    "IF (OutNetThroughput IS High) AND (OutBandwidth IS High) AND (Latency IS Med) THEN (FinalOut IS OTHER)",
     "IF (OutNetThroughput IS High) AND (OutBandwidth IS High) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Med) THEN (FinalOut IS NOT_RELEVANT_LAT)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS LOW_OBW)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Med) THEN (FinalOut IS LOW_OBW)",
     "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Low) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Med) THEN (FinalOut IS NOT_RELEVANT_LAT)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Low) THEN (FinalOut IS OTHER)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Med) THEN (FinalOut IS OTHER)",
     "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Low) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Med) THEN (FinalOut IS NOT_RELEVANT_LAT)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Low) THEN (FinalOut IS OTHER)",
+    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Med) THEN (FinalOut IS OTHER)",
     "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS Med) THEN (FinalOut IS NOT_RELEVANT_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Low) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Low) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS Med) THEN (FinalOut IS NOT_RELEVANT_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS Med) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Low) THEN (FinalOut IS HIGH_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS Med) THEN (FinalOut IS NOT_RELEVANT_LAT)",
-    "IF (OutNetThroughput IS Med) AND (OutBandwidth IS High) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Low) AND (Latency IS Low) THEN (FinalOut IS LOW_OBW)",
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Low) AND (Latency IS Med) THEN (FinalOut IS LOW_OBW)",
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Low) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Med) AND (Latency IS Low) THEN (FinalOut IS LOW_ONT)",
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Med) AND (Latency IS Med) THEN (FinalOut IS LOW_ONT)",
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS Med) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS High) AND (Latency IS Low) THEN (FinalOut IS LOW_ONT)",
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS High) AND (Latency IS Med) THEN (FinalOut IS LOW_ONT)",
+    "IF (OutNetThroughput IS Low) AND (OutBandwidth IS High) AND (Latency IS High) THEN (FinalOut IS HIGH_LAT)",
 ])
 
-FS3.set_output_function("VERY_CRITICAL", "-0.85*Critical + 0.15*FinalOut")
-FS3.set_output_function("NOT_CRITICAL", "-0.2*Critical + FinalOut*0.8")
+FS3.set_output_function("VERY_CRITICAL", "-0.91*Critical + 0.09*FinalOut")
+FS3.set_output_function("NOT_CRITICAL", "-0.15*Critical + FinalOut*0.85")
 
 FS3.add_rules([
     "IF (Critical IS Low) THEN (CLP_variation IS VERY_CRITICAL)",
