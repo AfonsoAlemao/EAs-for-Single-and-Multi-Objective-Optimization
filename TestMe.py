@@ -376,10 +376,6 @@ def MLP_training(X_train, y_train):
         'regressor__learning_rate': ['constant', 'adaptive'],
         'regressor__hidden_layer_sizes': [(12,12,12),(10,10,10), (8,6,3), (6,4,2), (4,5,4),(4,3,3),(8),(9,6),(8,7,6)],
     }
-    
-#   Size of Input layer = 5 > Size of Hidden layer  > Size of Output layer = 1
-#   Size of Hidden layer = 2/3 Size of Input layer + Size of Output layer = 4
-#   Size of Hidden layer < 2x Size of Input layer = 10
 
     # Create a pipeline with StandardScaler and MLPRegressor
     pipeline = Pipeline([
