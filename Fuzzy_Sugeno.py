@@ -24,9 +24,9 @@ FS1.add_linguistic_variable("ProcessorLoad", LinguisticVariable([PL1, PL2, PL3],
 
 ### Critical ###
 
-CR1 = TrapezoidFuzzySet(-1, -1, -0.8, 0, term="Low")
+CR1 = TrapezoidFuzzySet(-1, -1, -0.8, -0.6, term="Low")
 CR2 = TrapezoidFuzzySet(-0.7, -0.35, 0.35, 0.7, term="Med")
-CR3 = TrapezoidFuzzySet(0, 0.8, 1, 1, term="High")
+CR3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 FS3.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 
