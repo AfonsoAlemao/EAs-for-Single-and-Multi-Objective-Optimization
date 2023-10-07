@@ -1,6 +1,7 @@
 from simpful import *
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 ###################### FIS ######################
 
@@ -258,6 +259,11 @@ for index, row in df.iterrows():
     Latency = row['Latency']
 
     CLP_var_pred_FIS.append(CLPVar_prediction(MemoryUsage, ProcessorLoad, OutNetThroughput, OutBandwidth, Latency))
+    
+print('Results on the test set from FIS model:')
+print('Mean Squared Error = {}'.format(mean_squared_error(df['CLPVariation'], CLP_var_pred_FIS)))
+print('Root Mean Squared Error = {}'.format(mean_absolute_error(df['CLPVariation'], CLP_var_pred_FIS)))
+print('Mean Absolute Error = {}'.format(mean_squared_error(df['CLPVariation'], CLP_var_pred_FIS, squared=False)))
 
 #################### Generate Data ####################
 
@@ -358,7 +364,6 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
