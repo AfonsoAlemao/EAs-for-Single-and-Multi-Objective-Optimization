@@ -260,7 +260,7 @@ for index, row in df.iterrows():
 
     CLP_var_pred_FIS.append(CLPVar_prediction(MemoryUsage, ProcessorLoad, OutNetThroughput, OutBandwidth, Latency))
     
-print('Results on the test set from FIS model:')
+print('Results of FIS model in the initial provided dataset:')
 print('Mean Squared Error = {}'.format(mean_squared_error(df['CLPVariation'], CLP_var_pred_FIS)))
 print('Root Mean Squared Error = {}'.format(mean_absolute_error(df['CLPVariation'], CLP_var_pred_FIS)))
 print('Mean Absolute Error = {}'.format(mean_squared_error(df['CLPVariation'], CLP_var_pred_FIS, squared=False)))
@@ -405,7 +405,7 @@ def MLP_testing(clf, X_test, y_test, datasetType):
         elif(element < -1):
             y_pred[index] = -1
         
-    print('Results on the test set from {}:'.format(datasetType))
+    print('Results of NN on the test set from {}:'.format(datasetType))
     print('Mean Squared Error = {}'.format(mean_squared_error(y_true, y_pred)))
     print('Root Mean Squared Error = {}'.format(mean_absolute_error(y_true, y_pred)))
     print('Mean Absolute Error = {}'.format(mean_squared_error(y_true, y_pred, squared=False)))
