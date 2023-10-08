@@ -262,8 +262,8 @@ for index, row in df.iterrows():
     
 print('Results of FIS model in the initial provided dataset:')
 print('Mean Squared Error = {}'.format(mean_squared_error(df['CLPVariation'], CLP_var_pred_FIS)))
-print('Root Mean Squared Error = {}'.format(mean_absolute_error(df['CLPVariation'], CLP_var_pred_FIS)))
-print('Mean Absolute Error = {}'.format(mean_squared_error(df['CLPVariation'], CLP_var_pred_FIS, squared=False)))
+print('Root Mean Squared Error = {}'.format(mean_squared_error(df['CLPVariation'], CLP_var_pred_FIS, squared=False)))
+print('Mean Absolute Error = {}'.format(mean_absolute_error(df['CLPVariation'], CLP_var_pred_FIS)))
 
 #################### Generate Data ####################
 
@@ -407,8 +407,8 @@ def MLP_testing(clf, X_test, y_test, datasetType):
         
     print('Results of NN on the test set from {}:'.format(datasetType))
     print('Mean Squared Error = {}'.format(mean_squared_error(y_true, y_pred)))
-    print('Root Mean Squared Error = {}'.format(mean_absolute_error(y_true, y_pred)))
-    print('Mean Absolute Error = {}'.format(mean_squared_error(y_true, y_pred, squared=False)))
+    print('Root Mean Squared Error = {}'.format(mean_squared_error(y_true, y_pred, squared=False)))
+    print('Mean Absolute Error = {}'.format(mean_absolute_error(y_true, y_pred)))
     
     return y_pred
     
