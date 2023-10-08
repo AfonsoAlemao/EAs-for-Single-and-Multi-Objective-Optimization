@@ -3,6 +3,7 @@
 import pandas as pd
 import random
 from simpful import *
+import matplotlib.pyplot as plt
 
 ###################### FIS ######################
 
@@ -35,12 +36,34 @@ MU2 = TriangleFuzzySet(0.45, 0.6, 0.75, term="Med")
 MU3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("MemoryUsage", LinguisticVariable([MU1, MU2, MU3], universe_of_discourse=[0,1]))
 
+plt.figure(0)
+plt.plot([0, 0, 0.3 ,0.6], [0,1,1,0])
+plt.plot([0.45, 0.6, 0.75], [0,1,0])
+plt.plot([0.6, 0.8, 1, 1], [0,1,1,0])
+plt.legend(['Low', 'Med', 'High'])
+plt.ylim([0, 1.05])
+plt.xlim([0, 1])
+plt.title('Membership Function Memory Usage')
+plt.xlabel('Memory Usage')
+plt.ylabel('MF')
+
 ### Processor Load ###
 
 PL1 = TrapezoidFuzzySet(0, 0, 0.3 ,0.6, term="Low")
 PL2 = TriangleFuzzySet(0.45, 0.6, 0.75, term="Med")
 PL3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("ProcessorLoad", LinguisticVariable([PL1, PL2, PL3], universe_of_discourse=[0,1]))
+
+plt.figure(1)
+plt.plot([0, 0, 0.3 ,0.6], [0,1,1,0])
+plt.plot([0.45, 0.6, 0.75], [0,1,0])
+plt.plot([0.6, 0.8, 1, 1], [0,1,1,0])
+plt.legend(['Low', 'Med', 'High'])
+plt.ylim([0, 1.05])
+plt.xlim([0, 1])
+plt.title('Membership Function Processor Load')
+plt.xlabel('Processor Load')
+plt.ylabel('MF')
 
 ### Critical ###
 
@@ -50,12 +73,36 @@ CR3 = TrapezoidFuzzySet(0.5, 0.6, 1, 1, term="High")
 FS1.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 FS3.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 
+plt.figure(2)
+plt.plot([-1, -1, -0.6, -0.5], [0,1,1,0])
+plt.plot([-0.7, -0.35, 0.35, 0.7], [0,1,1,0])
+plt.plot([0.5, 0.6, 1, 1], [0,1,1,0])
+plt.legend(['Low', 'Med', 'High'])
+plt.ylim([0, 1.05])
+plt.xlim([-1, 1])
+plt.title('Membership Function Critical')
+plt.xlabel('Critical')
+plt.ylabel('MF')
+
+
 ### OutBandwidth ###
 
 OB1 = TriangleFuzzySet(0, 0, 0.5, term="Low")
 OB2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
 OB3 = TriangleFuzzySet(0.5, 1, 1, term="High")
 FS2.add_linguistic_variable("OutBandwidth", LinguisticVariable([OB1, OB2, OB3], universe_of_discourse=[0,1]))
+
+plt.figure(3)
+plt.plot([0, 0, 0.5], [0,1,0])
+plt.plot([0.3, 0.5, 0.7], [0,1,0])
+plt.plot([0.5, 1, 1], [0,1,0])
+plt.legend(['Low', 'Med', 'High'])
+plt.ylim([0, 1.05])
+plt.xlim([0, 1])
+plt.title('Membership Function OutBandwidth')
+plt.xlabel('OutBandwidth')
+plt.ylabel('MF')
+
 
 ### OutNetThroughput ###
 
@@ -64,12 +111,36 @@ ONT2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
 ONT3 = TriangleFuzzySet(0.5, 1, 1, term="High")
 FS2.add_linguistic_variable("OutNetThroughput", LinguisticVariable([ONT1, ONT2, ONT3], universe_of_discourse=[0,1]))
 
+plt.figure(4)
+plt.plot([0, 0, 0.5], [0,1,0])
+plt.plot([0.3, 0.5, 0.7], [0,1,0])
+plt.plot([0.5, 1, 1], [0,1,0])
+plt.legend(['Low', 'Med', 'High'])
+plt.ylim([0, 1.05])
+plt.xlim([0, 1])
+plt.title('Membership Function OutNetThroughput')
+plt.xlabel('OutNetThroughput')
+plt.ylabel('MF')
+
+
 ### Latency ### 
 
 L1 = TrapezoidFuzzySet(0, 0, 0.3, 0.5, term="Low")
 L2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
 L3 = TrapezoidFuzzySet(0.5, 0.7, 1, 1, term="High")
 FS2.add_linguistic_variable("Latency", LinguisticVariable([L1, L2, L3], universe_of_discourse=[0,1]))
+
+plt.figure(5)
+plt.plot([0, 0, 0.3, 0.5], [0,1,1,0])
+plt.plot([0.3, 0.5, 0.7], [0,1,0])
+plt.plot([0.5, 0.7, 1, 1], [0,1,1,0])
+plt.legend(['Low', 'Med', 'High'])
+plt.ylim([0, 1.05])
+plt.xlim([0, 1])
+plt.title('Membership Function Latency')
+plt.xlabel('Latency')
+plt.ylabel('MF')
+
 
 ### FinalOut ###
 
@@ -79,6 +150,18 @@ FO3 = TriangleFuzzySet(0, 1, 1, term="High")
 FS2.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[-1,1]))
 FS3.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[-1,1]))
 
+plt.figure(6)
+plt.plot([-1, -1, 0], [0,1,0])
+plt.plot([-0.4, 0, 0.4], [0,1,0])
+plt.plot([0, 1, 1], [0,1,0])
+plt.legend(['Low', 'Med', 'High'])
+plt.ylim([0, 1.05])
+plt.xlim([-1, 1])
+plt.title('Membership Function FinalOut')
+plt.xlabel('FinalOut')
+plt.ylabel('MF')
+
+
 ### CLP_variation ###
 
 CLP1 = TriangleFuzzySet(-1, -1, 0, term="Negative")
@@ -86,6 +169,18 @@ CLP2 = TriangleFuzzySet(-0.35, 0, 0.35, term="Null")
 CLP3 = TriangleFuzzySet(0, 1, 1, term="Positive")
 
 FS3.add_linguistic_variable("CLP_variation", LinguisticVariable([CLP1, CLP2, CLP3], universe_of_discourse=[-1,1]))
+
+plt.figure(7)
+plt.plot([-1, -1, 0], [0,1,0])
+plt.plot([-0.35, 0, 0.35], [0,1,0])
+plt.plot([0, 1, 1], [0,1,0])
+plt.legend(['Negative', 'Null', 'Positive'])
+plt.ylim([0, 1.05])
+plt.xlim([-1, 1])
+plt.title('Membership Function CLP Variation')
+plt.xlabel('CLP Variation')
+plt.ylabel('MF')
+plt.show()
 
 FS1.set_output_function("High_Critical", "max(MemoryUsage, ProcessorLoad) * 2 - 1")
 FS1.set_output_function("Regular", "((MemoryUsage + ProcessorLoad) / 2) * 2 - 1")
