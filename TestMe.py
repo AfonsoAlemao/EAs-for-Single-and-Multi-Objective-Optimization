@@ -180,9 +180,9 @@ plt.xlabel('CLP Variation')
 plt.ylabel('MF')
 plt.show()
 
-FS1.set_output_function("High_Critical", "max(MemoryUsage, ProcessorLoad)*2-1")
-FS1.set_output_function("Regular", "((MemoryUsage + ProcessorLoad) / 2)*2-1")
-FS1.set_output_function("Low_Critical", "((MemoryUsage + ProcessorLoad) / 8)*2-1")
+FS1.set_output_function("High_Critical", "max(MemoryUsage, ProcessorLoad) * 2 - 1")
+FS1.set_output_function("Regular", "((MemoryUsage + ProcessorLoad) / 2) * 2 - 1")
+FS1.set_output_function("Low_Critical", "((MemoryUsage + ProcessorLoad) / 8) * 2 - 1")
 
 FS1.add_rules([
     "IF (MemoryUsage IS Low) AND (ProcessorLoad IS Low) THEN (Critical IS Low_Critical)",
