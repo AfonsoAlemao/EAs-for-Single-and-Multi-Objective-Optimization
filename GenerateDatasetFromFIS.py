@@ -1,7 +1,8 @@
-from simpful import *
+#################### Generate Data ####################
+
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+import random
+from simpful import *
 
 ###################### FIS ######################
 
@@ -34,34 +35,12 @@ MU2 = TriangleFuzzySet(0.45, 0.6, 0.75, term="Med")
 MU3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("MemoryUsage", LinguisticVariable([MU1, MU2, MU3], universe_of_discourse=[0,1]))
 
-plt.figure(0)
-plt.plot([0, 0, 0.3 ,0.6], [0,1,1,0])
-plt.plot([0.45, 0.6, 0.75], [0,1,0])
-plt.plot([0.6, 0.8, 1, 1], [0,1,1,0])
-plt.legend(['Low', 'Med', 'High'])
-plt.ylim([0, 1.05])
-plt.xlim([0, 1])
-plt.title('Membership Function Memory Usage')
-plt.xlabel('Memory Usage')
-plt.ylabel('MF')
-
 ### Processor Load ###
 
 PL1 = TrapezoidFuzzySet(0, 0, 0.3 ,0.6, term="Low")
 PL2 = TriangleFuzzySet(0.45, 0.6, 0.75, term="Med")
 PL3 = TrapezoidFuzzySet(0.6, 0.8, 1, 1, term="High")
 FS1.add_linguistic_variable("ProcessorLoad", LinguisticVariable([PL1, PL2, PL3], universe_of_discourse=[0,1]))
-
-plt.figure(1)
-plt.plot([0, 0, 0.3 ,0.6], [0,1,1,0])
-plt.plot([0.45, 0.6, 0.75], [0,1,0])
-plt.plot([0.6, 0.8, 1, 1], [0,1,1,0])
-plt.legend(['Low', 'Med', 'High'])
-plt.ylim([0, 1.05])
-plt.xlim([0, 1])
-plt.title('Membership Function Processor Load')
-plt.xlabel('Processor Load')
-plt.ylabel('MF')
 
 ### Critical ###
 
@@ -71,36 +50,12 @@ CR3 = TrapezoidFuzzySet(0.5, 0.6, 1, 1, term="High")
 FS1.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 FS3.add_linguistic_variable("Critical", LinguisticVariable([CR1, CR2, CR3], universe_of_discourse=[-1,1]))
 
-plt.figure(2)
-plt.plot([-1, -1, -0.6, -0.5], [0,1,1,0])
-plt.plot([-0.7, -0.35, 0.35, 0.7], [0,1,1,0])
-plt.plot([0.5, 0.6, 1, 1], [0,1,1,0])
-plt.legend(['Low', 'Med', 'High'])
-plt.ylim([0, 1.05])
-plt.xlim([-1, 1])
-plt.title('Membership Function Critical')
-plt.xlabel('Critical')
-plt.ylabel('MF')
-
-
 ### OutBandwidth ###
 
 OB1 = TriangleFuzzySet(0, 0, 0.5, term="Low")
 OB2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
 OB3 = TriangleFuzzySet(0.5, 1, 1, term="High")
 FS2.add_linguistic_variable("OutBandwidth", LinguisticVariable([OB1, OB2, OB3], universe_of_discourse=[0,1]))
-
-plt.figure(3)
-plt.plot([0, 0, 0.5], [0,1,0])
-plt.plot([0.3, 0.5, 0.7], [0,1,0])
-plt.plot([0.5, 1, 1], [0,1,0])
-plt.legend(['Low', 'Med', 'High'])
-plt.ylim([0, 1.05])
-plt.xlim([0, 1])
-plt.title('Membership Function OutBandwidth')
-plt.xlabel('OutBandwidth')
-plt.ylabel('MF')
-
 
 ### OutNetThroughput ###
 
@@ -109,36 +64,12 @@ ONT2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
 ONT3 = TriangleFuzzySet(0.5, 1, 1, term="High")
 FS2.add_linguistic_variable("OutNetThroughput", LinguisticVariable([ONT1, ONT2, ONT3], universe_of_discourse=[0,1]))
 
-plt.figure(4)
-plt.plot([0, 0, 0.5], [0,1,0])
-plt.plot([0.3, 0.5, 0.7], [0,1,0])
-plt.plot([0.5, 1, 1], [0,1,0])
-plt.legend(['Low', 'Med', 'High'])
-plt.ylim([0, 1.05])
-plt.xlim([0, 1])
-plt.title('Membership Function OutNetThroughput')
-plt.xlabel('OutNetThroughput')
-plt.ylabel('MF')
-
-
 ### Latency ### 
 
 L1 = TrapezoidFuzzySet(0, 0, 0.3, 0.5, term="Low")
 L2 = TriangleFuzzySet(0.3, 0.5, 0.7, term="Med")
 L3 = TrapezoidFuzzySet(0.5, 0.7, 1, 1, term="High")
 FS2.add_linguistic_variable("Latency", LinguisticVariable([L1, L2, L3], universe_of_discourse=[0,1]))
-
-plt.figure(5)
-plt.plot([0, 0, 0.3, 0.5], [0,1,1,0])
-plt.plot([0.3, 0.5, 0.7], [0,1,0])
-plt.plot([0.5, 0.7, 1, 1], [0,1,1,0])
-plt.legend(['Low', 'Med', 'High'])
-plt.ylim([0, 1.05])
-plt.xlim([0, 1])
-plt.title('Membership Function Latency')
-plt.xlabel('Latency')
-plt.ylabel('MF')
-
 
 ### FinalOut ###
 
@@ -148,18 +79,6 @@ FO3 = TriangleFuzzySet(0, 1, 1, term="High")
 FS2.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[-1,1]))
 FS3.add_linguistic_variable("FinalOut", LinguisticVariable([FO1, FO2, FO3], universe_of_discourse=[-1,1]))
 
-plt.figure(6)
-plt.plot([-1, -1, 0], [0,1,0])
-plt.plot([-0.4, 0, 0.4], [0,1,0])
-plt.plot([0, 1, 1], [0,1,0])
-plt.legend(['Low', 'Med', 'High'])
-plt.ylim([0, 1.05])
-plt.xlim([-1, 1])
-plt.title('Membership Function FinalOut')
-plt.xlabel('FinalOut')
-plt.ylabel('MF')
-
-
 ### CLP_variation ###
 
 CLP1 = TriangleFuzzySet(-1, -1, 0, term="Negative")
@@ -167,18 +86,6 @@ CLP2 = TriangleFuzzySet(-0.35, 0, 0.35, term="Null")
 CLP3 = TriangleFuzzySet(0, 1, 1, term="Positive")
 
 FS3.add_linguistic_variable("CLP_variation", LinguisticVariable([CLP1, CLP2, CLP3], universe_of_discourse=[-1,1]))
-
-plt.figure(7)
-plt.plot([-1, -1, 0], [0,1,0])
-plt.plot([-0.35, 0, 0.35], [0,1,0])
-plt.plot([0, 1, 1], [0,1,0])
-plt.legend(['Negative', 'Null', 'Positive'])
-plt.ylim([0, 1.05])
-plt.xlim([-1, 1])
-plt.title('Membership Function CLP Variation')
-plt.xlabel('CLP Variation')
-plt.ylabel('MF')
-plt.show()
 
 FS1.set_output_function("High_Critical", "max(MemoryUsage, ProcessorLoad) * 2 - 1")
 FS1.set_output_function("Regular", "((MemoryUsage + ProcessorLoad) / 2) * 2 - 1")
@@ -245,59 +152,91 @@ FS3.add_rules([
     "IF (Critical IS High) AND (FinalOut IS High) THEN (CLP_variation IS VERY_CRITICAL)",
 ])
 
-##################### FIS prediction for the initial provided dataset #####################
 
-df = pd.read_csv('Proj1_TestS.csv', encoding='utf-8')
-# df.to_excel('Proj1_TestS.xlsx', index=False)
+def generateDataset():
+    new_df = pd.DataFrame()
 
-CLP_var_pred_FIS = []
+    range_considered = [0.2 + i / 5 for i in range(4)]
+    new_MU = []
+    new_PL = []
+    new_OT = []
+    new_OBW = []
+    new_Lat = []
+    new_CLP_var = []
+    new_IT = []
 
-for index, row in df.iterrows():
-    MemoryUsage = row['MemoryUsage']
-    ProcessorLoad = row['ProcessorLoad']
-    OutNetThroughput = row['OutNetThroughput'] 
-    OutBandwidth = row['OutBandwidth']
-    Latency = row['Latency']
-
-    CLP_var_pred_FIS.append(CLPVar_prediction(MemoryUsage, ProcessorLoad, OutNetThroughput, OutBandwidth, Latency))
+    random.seed(40)
+    random_numbers = [random.uniform(-0.2, 0.2) for _ in range(6144)]
+    kk = 0
     
-print('Results of FIS model in the initial provided dataset:')
-print('Mean Squared Error = {}'.format(mean_squared_error(df['CLPVariation'], CLP_var_pred_FIS)))
-print('Root Mean Squared Error = {}'.format(mean_squared_error(df['CLPVariation'], CLP_var_pred_FIS, squared=False)))
-print('Mean Absolute Error = {}'.format(mean_absolute_error(df['CLPVariation'], CLP_var_pred_FIS)))
-
-#################### NN ####################
-
-import pickle
-import numpy as np
-
- # Neural Network
- 
-filename = 'NN_model.sav'
-model = pickle.load(open(filename, 'rb')) # Load a previously saved model trained on the generated data
-
-##################### NN prediction For the initial provided dataset #####################
-
-y_testS = (np.array(df['CLPVariation']))
-X_testS = (np.array(df))[:,:-1]
-
-X_testS2 = np.delete(X_testS, [2,6,7,8,9,10],axis=1)
-
-y_true, ypredNN = y_testS , model.predict(X_testS2)
-
-for index, element in enumerate(ypredNN):
-    if(element > 1):
-        ypredNN[index] = 1
-    elif(element < -1):
-        ypredNN[index] = -1
+    # Generate dataset
+    for nMU in range_considered:
+        for nPL in range_considered:
+            for nOT in range_considered:
+                for nOBW in range_considered:
+                    for nL in range_considered:
+                        MU = nMU + random_numbers[kk]
+                        PL = nPL + random_numbers[kk + 1]
+                        OT = nOT + random_numbers[kk + 2]
+                        OBW = nOBW + random_numbers[kk + 3]
+                        L = nL + random_numbers[kk + 4]
+                        new_MU.append(MU)
+                        new_PL.append(PL)
+                        new_OT.append(OT)
+                        new_OBW.append(OBW)
+                        new_Lat.append(L)
+                        new_IT.append((random_numbers[kk + 5] + 0.2) * 2.5)
+                        kk += 6
+                        
+                        new_CLP_var.append(CLPVar_prediction(MU, PL, OT, OBW, L))
+                            
+    new_df['MemoryUsage'] = new_MU
+    new_df['ProcessorLoad'] = new_PL
+    new_df['InpNetThroughput'] = new_IT
+    new_df['OutNetThroughput'] = new_OT
+    new_df['OutBandwidth'] = new_OBW
+    new_df['Latency'] = new_Lat
     
-print('Results of NN on the test set from initial provided dataset:')
-print('Mean Squared Error = {}'.format(mean_squared_error(y_true, ypredNN)))
-print('Root Mean Squared Error = {}'.format(mean_squared_error(y_true, ypredNN, squared=False)))
-print('Mean Absolute Error = {}'.format(mean_absolute_error(y_true, ypredNN)))
-    
-df['CLPVariation_FIS'] = CLP_var_pred_FIS
-df['CLPVariation_NN'] = ypredNN
+    new_VMU = []
+    new_VPL = []
+    new_VIT = []	
+    new_VOT = []
+    new_VOBW = []
+    new_VL = []
+        
+    for index, row in new_df.iterrows():
+        if index == 0:
+            new_VMU.append(0)
+            new_VPL.append(0)
+            new_VIT.append(0)
+            new_VOT.append(0)
+            new_VOBW.append(0)
+            new_VL.append(0)
+        else:
+            new_VMU.append(row['MemoryUsage'] - MUprev)
+            new_VPL.append(row['ProcessorLoad'] - PLprev)
+            new_VIT.append(row['InpNetThroughput'] - ITprev)
+            new_VOT.append(row['OutNetThroughput'] - OTprev)
+            new_VOBW.append(row['OutBandwidth'] - OBWprev)
+            new_VL.append(row['Latency'] - Lprev)
+        
+        MUprev = row['MemoryUsage']
+        PLprev = row['ProcessorLoad']
+        ITprev = row['InpNetThroughput']
+        OTprev = row['OutNetThroughput']
+        OBWprev = row['OutBandwidth']
+        Lprev = row['Latency']
+            
+    new_df['V_MemoryUsage'] = new_VMU
+    new_df['V_ProcessorLoad'] = new_VPL	
+    new_df['V_InpNetThroughput'] = new_VIT	
+    new_df['V_OutNetThroughput'] = new_VOT
+    new_df['V_OutBandwidth'] = new_VOBW
+    new_df['V_Latency'] = new_VL
+    new_df['CLPVariation'] = new_CLP_var
 
-# df.to_excel('TestResult.xlsx', index=False)
-df.to_csv('TestResult.csv', encoding='utf-8', index=False)
+  
+    # new_df.to_excel('Proj1_TestS_GeneratedData.xlsx', index=False)
+    new_df.to_csv('Proj1_TestS_GeneratedData.csv', index=False, encoding='utf-8')
+    
+generateDataset()
