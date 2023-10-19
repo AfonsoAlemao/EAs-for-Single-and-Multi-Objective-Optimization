@@ -90,9 +90,8 @@ def evalROI(individual):
         
     previous_date_short = None
     previous_date_long = None
-    reset_strategy = False
-    begin_LP = -1
-    end_LP = -1
+    begin_LP = -1 # valor de compra de ações
+    end_LP = -1 # valor de venda de ações
     begin_SP = -1
     end_SP = -1
     
@@ -106,7 +105,7 @@ def evalROI(individual):
             begin_LP = row['Open']
             previous_date_long = current_date
         if(row['RSI'] >= UP_SP and begin_SP == -1):
-            begin_LP = row['Open']
+            begin_SP = row['Open']
             previous_date_short = current_date
         
         if(row['RSI'] >= UP_LP):
@@ -116,8 +115,7 @@ def evalROI(individual):
         
         if(row['RSI'] <= LB_SP):
             end_SP = row['Open']
-            if(not(begin_LP == -1 and end_LP == -1)):
-                ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
+            ROI_short += ((begin_SP - end_SP)/begin_SP) * 100
         
         if current_date - previous_date_long >= timedelta(RSI_long):
             if (begin_LP > 0) and (end_LP == -1):
@@ -198,7 +196,7 @@ def main():
 
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
-    pop = toolbox.population(n=300)
+    pop = toolbox.population(n=100) #menor que 144
 
     # CXPB  is the probability with which two individuals
     #       are crossed

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-AAL = pd.read_csv('ACI_Project2_2324_Data/AAL.csv', encoding='utf-8', sep=';') 
+AAL = pd.read_csv('ACI_Project2_2324_Data/AAL.csv', encoding='utf-8', sep= ';') 
 AAPL = pd.read_csv('ACI_Project2_2324_Data/AAPL.csv', encoding='utf-8', sep=';') 
 AMZN = pd.read_csv('ACI_Project2_2324_Data/AMZN.csv', encoding='utf-8', sep=';') 
 BAC = pd.read_csv('ACI_Project2_2324_Data/BAC.csv', encoding='utf-8', sep=';') 
@@ -21,20 +21,21 @@ RSI = []
 
 print(AAL)
 
+
 close_prev = -1
 for ind, row in AAL.iterrows():
     if ind == 0:
-        Gain.append(0)
-        Loss.append(0)
-        Gain_av.append(0)
-        Loss_av.append(0)
-        RS.append(0)
-        RSI.append(0)
+        Gain.append(None)
+        Loss.append(None)
+        Gain_av.append(None)
+        Loss_av.append(None)
+        RS.append(None)
+        RSI.append(None)
     elif ind > 0:
         balance = row['Close'] - close_prev 
         
         if balance > 0:
-            gain = abs(balance)
+            gain = balance
             loss = 0
         else:
             loss = abs(balance)
@@ -44,10 +45,10 @@ for ind, row in AAL.iterrows():
         Loss.append(loss)
         
         if ind <= 6:
-            Gain_av.append(0)
-            Loss_av.append(0)
-            RS.append(0)
-            RSI.append(0)
+            Gain_av.append(None)
+            Loss_av.append(None)
+            RS.append(None)
+            RSI.append(None)
         else:
             gain_av = np.mean(Gain[-6:])
             Gain_av.append(gain_av)
@@ -73,4 +74,4 @@ AAL['RSI'] = RSI
 
 AAL.to_csv("ACI_Project2_2324_Data/AAL.csv", 
             index = None,
-            header=True, encoding='utf-8')
+            header=True, encoding='utf-8', sep=';')
