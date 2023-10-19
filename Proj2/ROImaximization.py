@@ -22,6 +22,7 @@ import random
 from deap import base
 from deap import creator
 from deap import tools
+from datetime import timedelta
 
 import pandas as pd
 
@@ -35,7 +36,19 @@ GOOG = pd.read_csv('ACI_Project2_2324_Data/GOOG.csv', encoding='utf-8')
 IBM = pd.read_csv('ACI_Project2_2324_Data/IBM.csv', encoding='utf-8') 
 INTC = pd.read_csv('ACI_Project2_2324_Data/INTC.csv', encoding='utf-8') 
 NVDA = pd.read_csv('ACI_Project2_2324_Data/NVDA.csv', encoding='utf-8') 
-XOM = pd.read_csv('ACI_Project2_2324_Data/XOM.csv', encoding='utf-8') 
+XOM = pd.read_csv('ACI_Project2_2324_Data/XOM.csv', encoding='utf-8')
+
+
+AAL['Date'] = pd.to_datetime(AAL['Date'], format='%d/%m/%Y')  
+AAPL['Date'] = pd.to_datetime(AAPL['Date'], format='%d/%m/%Y')  
+AMZN['Date'] = pd.to_datetime(AMZN['Date'], format='%d/%m/%Y')  
+BAC['Date'] = pd.to_datetime(BAC['Date'], format='%d/%m/%Y')  
+F['Date'] = pd.to_datetime(F['Date'], format='%d/%m/%Y')  
+GOOG['Date'] = pd.to_datetime(GOOG['Date'], format='%d/%m/%Y')  
+IBM['Date'] = pd.to_datetime(IBM['Date'], format='%d/%m/%Y')  
+INTC['Date'] = pd.to_datetime(INTC['Date'], format='%d/%m/%Y')  
+NVDA['Date'] = pd.to_datetime(NVDA['Date'], format='%d/%m/%Y')  
+XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')  
 
 
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
@@ -59,7 +72,7 @@ toolbox.register("multiple_five", get_multiple_five)
 #                         define 'individual' to be an individual
 #                         consisting of 100 'attr_bool' elements ('genes')
 toolbox.register("individual", tools.initRepeat, creator.Individual, 
-    toolbox.n_days, 2, toolbox.multiple_five, 4)
+    toolbox.n_days, 2, toolbox.multiple_five, 4)  # beginLP tem de ser sempre menor que o endLP
 
 # define the population to be a list of individuals
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -70,13 +83,64 @@ def evalROI(individual):
     
     # Para cada csv calcular ROI (2020-2022)
     # cortar df para periodo 20-22
+    start_date = '2020-01-01'
+    end_date = '2022-12-31'
     
+    AAL_2020_22 = AAL[(AAL['Date'] >= start_date) & (AAL['Date'] <= end_date)].reset_index(drop=True)
+        
+    previous_date_short = None
+    previous_date_long = None
+    reset_strategy = False
+    begin_LP = -1
+    end_LP = -1
+    begin_SP = -1
+    end_SP = -1
     
-    
-    
+    ROI_short = 0
+    ROI_long = 0
+
+    for index, row in AAL_2020_22.iterrows():
+        current_date = row['Date']
+
+        if(row['RSI'] <= LB_LP and begin_LP == -1):
+            begin_LP = row['Open']
+            previous_date_long = current_date
+        if(row['RSI'] >= UP_SP and begin_SP == -1):
+            begin_LP = row['Open']
+            previous_date_short = current_date
+        
+        if(row['RSI'] >= UP_LP):
+            end_LP = row['Open']
+            if(not(begin_LP == -1 and end_LP == -1)):
+                ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
+        
+        if(row['RSI'] <= LB_SP):
+            end_SP = row['Open']
+            if(not(begin_LP == -1 and end_LP == -1)):
+                ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
+        
+        if current_date - previous_date_long >= timedelta(RSI_long):
+            if (begin_LP > 0) and (end_LP == -1):
+                end_LP = row['Close']
+            if(not(begin_LP == -1 and end_LP == -1)):
+                ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
+            
+            begin_LP = -1
+            end_LP = -1
+                
+        if current_date - previous_date_short >= timedelta(RSI_short):        
+            if (begin_SP > 0) and (end_SP == 0):
+                end_SP = row['Close']
+            if(not(begin_SP == -1 and end_SP == -1)):    
+                ROI_short += ((begin_SP - end_SP)/begin_SP) * 100 
+            
+            begin_SP = -1
+            end_SP = -1
+
     # Retornar media dos ROIs de cada csv
     
-    return sum(individual),
+    
+    return (ROI_short + ROI_long)/2,
 
 #----------
 # Operator registration
