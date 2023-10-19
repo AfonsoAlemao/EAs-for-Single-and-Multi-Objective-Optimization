@@ -129,7 +129,7 @@ def evalROI(individual):
             end_LP = -1
                 
         if current_date - previous_date_short >= timedelta(RSI_short):        
-            if (begin_SP > 0) and (end_SP == 0):
+            if (begin_SP > 0) and (end_SP == -1):
                 end_SP = row['Close']
             if(not(begin_SP == -1 and end_SP == -1)):    
                 ROI_short += ((begin_SP - end_SP)/begin_SP) * 100 
@@ -137,9 +137,18 @@ def evalROI(individual):
             begin_SP = -1
             end_SP = -1
 
+    #chegámos ao fim dos dados: se estivermos a meio de um investimento, temos de o terminar
+    
+    if (begin_SP > 0) and (end_SP == -1):
+        end_SP = row['Close']   
+        ROI_short += ((begin_SP - end_SP)/begin_SP) * 100   
+    
+    if (begin_LP > 0) and (end_LP == -1):
+        end_LP = row['Close']
+        ROI_long += ((end_LP - begin_LP)/begin_LP) * 100  
+    
+    
     # Retornar media dos ROIs de cada csv
-    
-    
     return (ROI_short + ROI_long)/2,
 
 #----------
