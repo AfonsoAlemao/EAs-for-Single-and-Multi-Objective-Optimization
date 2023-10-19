@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-AAL = pd.read_csv('ACI_Project2_2324_Data/AAL.csv', encoding='utf-8', sep=';') 
+AAL = pd.read_csv('ACI_Project2_2324_Data/AAL.csv', encoding='utf-8') 
 AAPL = pd.read_csv('ACI_Project2_2324_Data/AAPL.csv', encoding='utf-8', sep=';') 
 AMZN = pd.read_csv('ACI_Project2_2324_Data/AMZN.csv', encoding='utf-8', sep=';') 
 BAC = pd.read_csv('ACI_Project2_2324_Data/BAC.csv', encoding='utf-8', sep=';') 
@@ -34,10 +34,10 @@ for ind, row in AAL.iterrows():
         balance = row['Close'] - close_prev 
         
         if balance > 0:
-            gain = balance
+            gain = abs(balance)
             loss = 0
         else:
-            loss = balance
+            loss = abs(balance)
             gain = 0
             
         Gain.append(gain)
@@ -53,10 +53,14 @@ for ind, row in AAL.iterrows():
             Gain_av.append(gain_av)
             loss_av = np.mean(Loss[-6:])
             Loss_av.append(loss_av)
-            rs = gain_av / loss_av
-            RS.append(rs)
-            rsi = 100 - 100 / (1 + rs)
-            RSI.append(rsi)
+            if(loss_av == 0):
+                RS.append(None)
+                RSI.append(100)
+            else:
+                rs = gain_av / loss_av
+                RS.append(rs)
+                rsi = 100 - 100 / (1 + rs)
+                RSI.append(rsi)
             
     close_prev = row['Close']
     
