@@ -23,36 +23,66 @@ from deap import base
 from deap import creator
 from deap import tools
 
+import pandas as pd
+
+
+AAL = pd.read_csv('ACI_Project2_2324_Data/AAL.csv', encoding='utf-8') 
+AAPL = pd.read_csv('ACI_Project2_2324_Data/AAPL.csv', encoding='utf-8') 
+AMZN = pd.read_csv('ACI_Project2_2324_Data/AMZN.csv', encoding='utf-8') 
+BAC = pd.read_csv('ACI_Project2_2324_Data/BAC.csv', encoding='utf-8') 
+F = pd.read_csv('ACI_Project2_2324_Data/F.csv', encoding='utf-8') 
+GOOG = pd.read_csv('ACI_Project2_2324_Data/GOOG.csv', encoding='utf-8') 
+IBM = pd.read_csv('ACI_Project2_2324_Data/IBM.csv', encoding='utf-8') 
+INTC = pd.read_csv('ACI_Project2_2324_Data/INTC.csv', encoding='utf-8') 
+NVDA = pd.read_csv('ACI_Project2_2324_Data/NVDA.csv', encoding='utf-8') 
+XOM = pd.read_csv('ACI_Project2_2324_Data/XOM.csv', encoding='utf-8') 
+
+
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
 
+def get_n_days():
+    r = random.randint(1, 3)
+    return r * 7
+
+def get_multiple_five():
+    r = random.randint(1, 20)
+    return r * 5
+
 # Attribute generator 
-#                      define 'attr_bool' to be an attribute ('gene')
-#                      which corresponds to integers sampled uniformly
-#                      from the range [0,1] (i.e. 0 or 1 with equal
-#                      probability)
-toolbox.register("attr_bool", random.randint, 0, 1)
+toolbox.register("n_days", get_n_days)
+toolbox.register("multiple_five", get_multiple_five)
 
 # Structure initializers
 #                         define 'individual' to be an individual
 #                         consisting of 100 'attr_bool' elements ('genes')
 toolbox.register("individual", tools.initRepeat, creator.Individual, 
-    toolbox.attr_bool, 100)
+    toolbox.n_days, 2, toolbox.multiple_five, 4)
 
 # define the population to be a list of individuals
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # the goal ('fitness') function to be maximized
-def evalOneMax(individual):
+def evalROI(individual):
+    RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
+    
+    # Para cada csv calcular ROI (2020-2022)
+    # cortar df para periodo 20-22
+    
+    
+    
+    
+    # Retornar media dos ROIs de cada csv
+    
     return sum(individual),
 
 #----------
 # Operator registration
 #----------
 # register the goal / fitness function
-toolbox.register("evaluate", evalOneMax)
+toolbox.register("evaluate", evalROI)
 
 # register the crossover operator
 #tested
@@ -192,10 +222,11 @@ start_time = time.time()
 main()
 print("--- %s seconds ---" % (time.time() - start_time))
 
-N_RUNS = 10
+N_RUNS = 30
 if __name__ == "__main__":
     start_time = time.time()
     for i in range(N_RUNS):
+        random.seed(i)
         main()
     
     av_time = (time.time() - start_time) / N_RUNS
