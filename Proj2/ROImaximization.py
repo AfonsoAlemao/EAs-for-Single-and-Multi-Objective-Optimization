@@ -239,11 +239,13 @@ toolbox.register('mutate', mutCustom, indpb = 0.5)
 # is replaced by the 'fittest' (best) of three individuals
 # drawn randomly from the current generation.
 toolbox.register("select", tools.selRoulette)
+# toolbox.register("select", tools.selTournament, tournsize=2)
 
 #----------
 
 def oa_csv(csv_name, start_date_training, end_date_training):
-
+    if csv_name == 'GOOG':
+        print('aqui')
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
     pop = toolbox.population(n=INITIAL_POPULATION) #menor que 144
@@ -280,6 +282,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     # Begin the evolution
     while g < GENERATIONS and improve_perf > PERF_THRESHOLD: #TODO TESTAR THRESHOLD
+        # print(len(pop))
         # A new generation
         g = g + 1
         
@@ -288,9 +291,11 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         
         # Select the next generation individuals
         offspring = toolbox.select(pop, len(pop))
+        # print(len(offspring))
         # Clone the selected individuals
         offspring = list(map(toolbox.clone, offspring))
-    
+        
+        
         # Apply crossover and mutation on the offspring
         for child1, child2 in zip(offspring[::2], offspring[1::2]):
 
@@ -321,8 +326,11 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # print("  Evaluated %i individuals" % len(invalid_ind))
         
         # The population is entirely replaced by the offspring
-        pop[:] = offspring
-        
+        if offspring != []:
+            pop[:] = offspring
+        else:
+            print('hey')
+                
         hof.update(pop)
         
         # Gather all the fitnesses in one list and print the stats
@@ -357,10 +365,19 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     return max(fits), min(fits), mean, std, best_ind, best_ind.fitness.values
 
+# TODO TA MAL
+def flatten_list(arr):
+    flattened = []
+    for sublist in arr:
+        if isinstance(sublist, list):
+            flattened.extend(flatten_list(sublist))
+        else:
+            flattened.append(sublist)
+    return flattened
 
 def generate_histograms(best_individuals):
     
-    best_individuals_copy = np.array(best_individuals).reshape(-1)
+    best_individuals_copy = [flatten_list(row) for row in best_individuals]
     data = pd.DataFrame(best_individuals_copy, columns=['RSI_long', 'RSI_short', 'LB_LP', 'UP_LP', 'LB_SP', 'UP_SP'])
 
     # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
@@ -474,6 +491,7 @@ def main3_2(start_date_training, end_date_training):
         list_std = []
         fitness_final = []
         best_individuals = []
+        print(name)
          
         for i in range(N_RUNS):
             random.seed(i)
@@ -523,6 +541,7 @@ def main3_3(start_date_training, end_date_training):
     eval_csvs = []
     
     for name in csvs_names:
+        
         list_max = []
         list_min = []
         list_avg = []
@@ -573,7 +592,7 @@ if __name__ == "__main__":
     start_time = time.time()
     
     main3_2('2020-01-01', '2022-12-31')
-    main3_3('2011-01-01', '2019-12-31')
+    # main3_3('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
