@@ -377,7 +377,7 @@ def flatten_list(arr):
 
 def generate_histograms(best_individuals):
     
-    best_individuals_copy = [flatten_list(row) for row in best_individuals]
+    best_individuals_copy = [sublist for outer_list in best_individuals for sublist in outer_list]
     data = pd.DataFrame(best_individuals_copy, columns=['RSI_long', 'RSI_short', 'LB_LP', 'UP_LP', 'LB_SP', 'UP_SP'])
 
     # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
