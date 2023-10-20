@@ -57,17 +57,15 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 10000
-INITIAL_POPULATION = 100 
-N_RUNS = 1
+GENERATIONS = 5
+INITIAL_POPULATION = 5 
+N_RUNS = 2
 INFINITY = np.inf
 GAP_ANALYZED = 50
 PERF_THRESHOLD = 1
-#TODO
  
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
-
 
 
 toolbox = base.Toolbox()
@@ -127,13 +125,13 @@ toolbox.register("individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # the goal ('fitness') function to be maximized
-def evalROI(individual, csv_name):
+def evalROI(individual, csv_name, start_date, end_date):
     RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     # print(individual)
     # Para cada csv calcular ROI (2020-2022)
     # cortar df para periodo 20-22
-    start_date = '2020-01-01'
-    end_date = '2022-12-31'
+    # start_date = '2020-01-01'
+    # end_date = '2022-12-31'
     
     csv = csvs[csvs_names.index(csv_name)]
     
@@ -244,7 +242,7 @@ toolbox.register("select", tools.selRoulette)
 
 #----------
 
-def oa_csv(csv_name):
+def oa_csv(csv_name, start_date_training, end_date_training):
 
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
@@ -261,7 +259,7 @@ def oa_csv(csv_name):
     # Evaluate the entire population
     fitnesses = []
     for individual in pop:
-        fitnesses.append(toolbox.evaluate(individual, csv_name))
+        fitnesses.append(toolbox.evaluate(individual, csv_name, start_date_training, end_date_training))
         
     for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
@@ -316,7 +314,7 @@ def oa_csv(csv_name):
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         fitnesses = []
         for i in invalid_ind:
-            fitnesses.append(toolbox.evaluate(i, csv_name))
+            fitnesses.append(toolbox.evaluate(i, csv_name, start_date_training, end_date_training))
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
         
@@ -443,18 +441,6 @@ def generate_histograms(best_individuals):
     
 def generate_boxplots(fitness_csvs):
     
-    # data = np.array(fitness_csvs).T   
-    # scaler = MinMaxScaler()
-    # normalized_fitness_csvs = scaler.fit_transform(data)
-
-    # plt.figure(6)
-    # plt.boxplot(normalized_fitness_csvs, labels=csvs_names)
-    # plt.xlabel('Stocks')
-    # plt.ylabel('Normalized ROI')
-    # plt.title('Normalized ROI Boxplot')
-    # plt.savefig('normalized_boxplot.png')
-    # plt.show()
-    
     max = np.amax(fitness_csvs)
     min = np.amin(fitness_csvs)  
 
@@ -469,7 +455,7 @@ def generate_boxplots(fitness_csvs):
     plt.show()
     return
 
-def main():
+def main3_2(start_date_training, end_date_training):
     
     result = pd.DataFrame()
     result['Stocks'] = csvs_names
@@ -491,7 +477,7 @@ def main():
          
         for i in range(N_RUNS):
             random.seed(i)
-            max, min, avg, std, best_individual, fitness = oa_csv(name)
+            max, min, avg, std, best_individual, fitness = oa_csv(name, start_date_training, end_date_training)
             best_individuals.append(best_individual)
             list_max.append(max)
             list_min.append(min)
@@ -514,13 +500,80 @@ def main():
     generate_histograms(best_individuals_csvs)
     generate_boxplots(fitness_csvs)
     
+def main3_3(start_date_training, end_date_training):
+    
+    train_result = pd.DataFrame()
+    train_result['Stocks'] = csvs_names
+    
+    test_result = pd.DataFrame()
+    test_result['Stocks'] = csvs_names
+    
+    test_max_final = []
+    test_min_final = []
+    test_avg_final = []
+    test_std_final = []
+    
+    train_max_final = []
+    train_min_final = []
+    train_avg_final = []
+    train_std_final = []
+    
+    best_individuals_csvs = []
+    fitness_csvs = []
+    eval_csvs = []
+    
+    for name in csvs_names:
+        list_max = []
+        list_min = []
+        list_avg = []
+        list_std = []
+        fitness_final = []
+        best_individuals = []
+        eval_csv = []
+        for i in range(N_RUNS):
+            random.seed(i)
+            max, min, avg, std, best_individual, fitness = oa_csv(name, start_date_training, end_date_training)
+            best_individuals.append(best_individual)
+            list_max.append(max)
+            list_min.append(min)
+            list_avg.append(avg)
+            list_std.append(std)
+            fitness_final.append(fitness[0])
+            eval_csv.append(evalROI(best_individual, name, '2020-01-01', '2022-12-31')) #training
+        best_individuals_csvs.append(best_individuals)
+        
+        eval_csvs.append(eval_csv)
+        
+        train_max_final.append(np.max(list_max))
+        train_min_final.append(np.min(list_min))
+        train_avg_final.append(np.mean(list_avg))
+        train_std_final.append(np.std(fitness_final))
+        fitness_csvs.append(fitness_final)  
+        
+        test_max_final.append(np.max(eval_csv))
+        test_min_final.append(np.min(eval_csv))
+        test_avg_final.append(np.mean(eval_csv))
+        test_std_final.append(np.std(eval_csv))      
+    
+    train_result['Max'] = train_max_final 
+    train_result['Min'] = train_min_final
+    train_result['Mean'] = train_avg_final 
+    train_result['STD'] = train_std_final 
+    train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
+    
+    test_result['Max'] = test_max_final 
+    test_result['Min'] = test_min_final
+    test_result['Mean'] = test_avg_final 
+    test_result['STD'] = test_std_final 
+    test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
 
 import time
 
 if __name__ == "__main__":
     start_time = time.time()
     
-    main()
+    main3_2('2020-01-01', '2022-12-31')
+    main3_3('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
