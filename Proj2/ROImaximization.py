@@ -233,7 +233,7 @@ def oa_csv(csv_name):
 
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
-    pop = toolbox.population(n=10) #menor que 144
+    pop = toolbox.population(n=100) #menor que 144
 
     # CXPB  is the probability with which two individuals
     #       are crossed
@@ -244,11 +244,14 @@ def oa_csv(csv_name):
     print("Start of evolution")
     
     # Evaluate the entire population
-    fitnesses = list(map(toolbox.evaluate, pop))
+    fitnesses = []
+    for individual in pop:
+        fitnesses.append(toolbox.evaluate(individual, csv_name))
+        
     for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
     
-    print("  Evaluated %i individuals" % len(pop))
+    # print("  Evaluated %i individuals" % len(pop))
 
     # Extracting all the fitnesses of 
     fits = [ind.fitness.values[0] for ind in pop]
@@ -260,7 +263,7 @@ def oa_csv(csv_name):
     hof = tools.HallOfFame(1)
     
     # Begin the evolution
-    while g < 10000:
+    while g < 100:
         # A new generation
         g = g + 1
         print("-- Generation %i --" % g)
@@ -291,11 +294,13 @@ def oa_csv(csv_name):
     
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        fitnesses = map(toolbox.evaluate, invalid_ind)
+        fitnesses = []
+        for i in invalid_ind:
+            fitnesses.append(toolbox.evaluate(i, csv_name))
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
         
-        print("  Evaluated %i individuals" % len(invalid_ind))
+        # print("  Evaluated %i individuals" % len(invalid_ind))
         
         # The population is entirely replaced by the offspring
         pop[:] = offspring
@@ -310,25 +315,34 @@ def oa_csv(csv_name):
         sum2 = sum(x*x for x in fits)
         std = abs(sum2 / length - mean**2)**0.5
         
-        print("  Min %s" % min(fits))
-        print("  Max %s" % max(fits))
-        print("  Avg %s" % mean)
-        print("  Std %s" % std)
+        # print("  Min %s" % min(fits))
+        # print("  Max %s" % max(fits))
+        # print("  Avg %s" % mean)
+        # print("  Std %s" % std)
         
         best_ind_gen = tools.selBest(pop, 1)[0]
-        print("Best individual in generation %d: %s, %s" % (g, best_ind_gen, best_ind_gen.fitness.values))
-        print("Hall of fame: {} {}".format(hof[0], hof[0].fitness.values[0]))
+        # print("Best individual in generation %d: %s, %s" % (g, best_ind_gen, best_ind_gen.fitness.values))
+        # print("Hall of fame: {} {}".format(hof[0], hof[0].fitness.values[0]))
     
     print("-- End of (successful) evolution --")
     
     best_ind = tools.selBest(pop, 1)[0]
     print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
     
-    return min(fits), max(fits), mean, std
+    return min(fits), max(fits), mean, std, best_ind.fitness.values
     
+N_RUNS = 1
 
 def main():
     
+    result = pd.DataFrame()
+    result['Stocks'] = csvs_names
+    
+    max_final = []
+    min_final = []
+    avg_final = []
+    std_final = []
+    best_individuals = []
     for name in csvs_names:
         list_max = []
         list_min = []
@@ -336,24 +350,30 @@ def main():
         list_std = []
         for i in range(N_RUNS):
             random.seed(i)
-            max, min, avg, std = oa_csv(name)
+            max, min, avg, std, best_individual = oa_csv(name)
+            best_individuals.append(best_individual)
             list_max.append(max)
             list_min.append(min)
             list_avg.append(avg)
             list_std.append(std)
-        max = np.mean(list_max)
-        min = np.mean(list_min)
-        avg = np.mean(list_avg)
-        std = np.mean(list_std)
-            
-
+        max_final.append(np.mean(list_max))
+        min_final.append(np.mean(list_min))
+        avg_final.append(np.mean(list_avg))
+        std_final.append(np.mean(list_std))
+    
+    result['Max'] = max_final 
+    result['Min'] = min_final
+    result['Mean'] = avg_final 
+    result['STD'] = std_final 
+    result.to_csv('ACI_Project2_2324_Data/' + 'results' + '.csv', 
+            index = None,
+            header=True, encoding='utf-8')
 
 import time
 start_time = time.time()
 main()
 print("--- %s seconds ---" % (time.time() - start_time))
 
-N_RUNS = 30
 if __name__ == "__main__":
     start_time = time.time()
     
