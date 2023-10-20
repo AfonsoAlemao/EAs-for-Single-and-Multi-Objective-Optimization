@@ -57,9 +57,9 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 5
-INITIAL_POPULATION = 5 
-N_RUNS = 2
+GENERATIONS = 10000
+INITIAL_POPULATION = 100 
+N_RUNS = 30
 INFINITY = np.inf
 GAP_ANALYZED = 50
 PERF_THRESHOLD = 1
@@ -238,8 +238,8 @@ toolbox.register('mutate', mutCustom, indpb = 0.5)
 # generation: each individual of the current generation
 # is replaced by the 'fittest' (best) of three individuals
 # drawn randomly from the current generation.
-toolbox.register("select", tools.selRoulette)
-# toolbox.register("select", tools.selTournament, tournsize=2)
+# toolbox.register("select", tools.selRoulette)
+toolbox.register("select", tools.selTournament, tournsize=2)
 
 #----------
 
@@ -365,16 +365,6 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     return max(fits), min(fits), mean, std, best_ind, best_ind.fitness.values
 
-# TODO TA MAL
-def flatten_list(arr):
-    flattened = []
-    for sublist in arr:
-        if isinstance(sublist, list):
-            flattened.extend(flatten_list(sublist))
-        else:
-            flattened.append(sublist)
-    return flattened
-
 def generate_histograms(best_individuals):
     
     best_individuals_copy = [sublist for outer_list in best_individuals for sublist in outer_list]
@@ -469,7 +459,6 @@ def generate_boxplots(fitness_csvs):
     plt.ylabel('Normalized ROI')
     plt.title('Normalized ROI Boxplot')
     plt.savefig('normalized_boxplot.png')
-    plt.show()
     return
 
 def main3_2(start_date_training, end_date_training):
