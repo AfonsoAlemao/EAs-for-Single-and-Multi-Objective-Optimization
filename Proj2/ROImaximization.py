@@ -61,6 +61,7 @@ N_RUNS = 1
 INFINITY = np.inf
 GAP_ANALYZED = 20
 PERF_THRESHOLD = 1
+#TODO
  
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -276,7 +277,7 @@ def oa_csv(csv_name):
     max_by_generations = []
     
     # Begin the evolution
-    while g < GENERATIONS and improve_perf > PERF_THRESHOLD: 
+    while g < GENERATIONS and improve_perf > PERF_THRESHOLD: #TODO TESTAR THRESHOLD
         # A new generation
         g = g + 1
         
@@ -355,75 +356,80 @@ def oa_csv(csv_name):
 
 def generate_histograms(best_individuals):
     
-        array_days = [7, 14, 21]
-        array_multiples_five = [5*i for i in range(21)]
-        
-        plt.figure(0)
-        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 0], bins=3, align='mid', edgecolor='k')
-        bin_centers = 0.5 * (bins[:-1] + bins[1:])
-        plt.xticks([])
-        plt.xlabel('RSI period to apply for long positions')
-        plt.ylabel('Frequency')
-        plt.title('Histogram of RSI_long')
-        for center, label in zip(bin_centers, array_days):
-            plt.text(center, 0, str(label), ha='center', va='bottom')
-        plt.savefig('RSI_long.png')
-        
-        plt.figure(1)
-        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 1], bins=3, align='mid', edgecolor='k')
-        bin_centers = 0.5 * (bins[:-1] + bins[1:])
-        plt.xticks([])
-        plt.xlabel('RSI period to apply for short positions')
-        plt.ylabel('Frequency')
-        plt.title('Histogram of RSI_short')
-        for center, label in zip(bin_centers, array_days):
-            plt.text(center, 0, str(label), ha='center', va='bottom')
-        plt.savefig('RSI_short.png')
-        
-        plt.figure(2)
-        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 2], bins=21, align='mid', edgecolor='k')
-        bin_centers = 0.5 * (bins[:-1] + bins[1:])
-        plt.xticks([]) 
-        plt.xlabel('Lower band value to open a long position')
-        plt.ylabel('Frequency')
-        plt.title('Histogram of LB_LP')
-        for center, label in zip(bin_centers, array_multiples_five):
-            plt.text(center, 0, str(label), ha='center', va='bottom')
-        plt.savefig('LB_LP.png')
-        
-        plt.figure(3)
-        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 3], bins=21, align='mid', edgecolor='k')
-        bin_centers = 0.5 * (bins[:-1] + bins[1:])
-        plt.xticks([])  
-        plt.xlabel('Upper band value to close a long position')
-        plt.ylabel('Frequency')
-        plt.title('Histogram of UB_LP')
-        for center, label in zip(bin_centers, array_multiples_five):
-            plt.text(center, 0, str(label), ha='center', va='bottom')
-        plt.savefig('UB_LP.png')
-        
-        plt.figure(4)
-        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 4], bins=21, align='mid', edgecolor='k')
-        bin_centers = 0.5 * (bins[:-1] + bins[1:])
-        plt.xticks([]) 
-        plt.xlabel('Lower band value to close a short position')
-        plt.ylabel('Frequency')
-        plt.title('Histogram of LB_SP')
-        for center, label in zip(bin_centers, array_multiples_five):
-            plt.text(center, 0, str(label), ha='center', va='bottom')
-        plt.savefig('LB_SP.png')
-        
-        plt.figure(5)
-        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 5], bins=21, align='mid', edgecolor='k')
-        bin_centers = 0.5 * (bins[:-1] + bins[1:])
-        plt.xticks([])   
-        plt.xlabel('Upper band value to open a short position')
-        plt.ylabel('Frequency')
-        plt.title('Histogram of UB_SP')
-        for center, label in zip(bin_centers, array_multiples_five):
-            plt.text(center, 0, str(label), ha='center', va='bottom')
-        plt.savefig('UB_SP.png')
+    #TODO -> 2,3,4,5 ERRADOS
     
+    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
+    array_days = [7, 14, 21]
+    array_multiples_five = [5*i for i in range(21)]
+    
+    plt.figure(0)
+    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 0], bins=3, align='mid', edgecolor='k')
+    bin_centers = 0.5 * (bins[:-1] + bins[1:])
+    plt.xticks([])
+    plt.xlabel('RSI period to apply for long positions')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of RSI_long')
+    for center, label in zip(bin_centers, array_days):
+        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.savefig('RSI_long.png')
+    
+    plt.figure(1)
+    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 1], bins=3, align='mid', edgecolor='k')
+    bin_centers = 0.5 * (bins[:-1] + bins[1:])
+    plt.xticks([])
+    plt.xlabel('RSI period to apply for short positions')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of RSI_short')
+    for center, label in zip(bin_centers, array_days):
+        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.savefig('RSI_short.png')
+    
+    plt.figure(2)
+    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 2], bins=21, align='mid', edgecolor='k')
+    bin_centers = 0.5 * (bins[:-1] + bins[1:])
+    plt.xticks([]) 
+    plt.xlabel('Lower band value to open a long position')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of LB_LP')
+    for center, label in zip(bin_centers, array_multiples_five):
+        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.savefig('LB_LP.png')
+    
+    plt.figure(3)
+    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 3], bins=21, align='mid', edgecolor='k')
+    bin_centers = 0.5 * (bins[:-1] + bins[1:])
+    plt.xticks([])  
+    plt.xlabel('Upper band value to close a long position')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of UB_LP')
+    for center, label in zip(bin_centers, array_multiples_five):
+        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.savefig('UB_LP.png')
+    
+    plt.figure(4)
+    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 4], bins=21, align='mid', edgecolor='k')
+    bin_centers = 0.5 * (bins[:-1] + bins[1:])
+    plt.xticks([]) 
+    plt.xlabel('Lower band value to close a short position')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of LB_SP')
+    for center, label in zip(bin_centers, array_multiples_five):
+        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.savefig('LB_SP.png')
+    
+    plt.figure(5)
+    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 5], bins=21, align='mid', edgecolor='k')
+    bin_centers = 0.5 * (bins[:-1] + bins[1:])
+    plt.xticks([])   
+    plt.xlabel('Upper band value to open a short position')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of UB_SP')
+    for center, label in zip(bin_centers, array_multiples_five):
+        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.savefig('UB_SP.png')
+    
+def generate_boxplots(fitness_csvs):
+    #TODO    
 
 def main():
     
@@ -435,23 +441,32 @@ def main():
     avg_final = []
     std_final = []
     best_individuals = []
+    
+    fitness_csvs = []
+    
     for name in csvs_names:
         list_max = []
         list_min = []
         list_avg = []
         list_std = []
+        fitness_final = []
+         
         for i in range(N_RUNS):
             random.seed(i)
-            max, min, avg, std, best_individual = oa_csv(name)
+            max, min, avg, std, best_individual, fitness = oa_csv(name)
             best_individuals.append(best_individual)
             list_max.append(max)
             list_min.append(min)
             list_avg.append(avg)
             list_std.append(std)
+            fitness_final.append(fitness)
         max_final.append(np.mean(list_max))
         min_final.append(np.mean(list_min))
         avg_final.append(np.mean(list_avg))
         std_final.append(np.mean(list_std))
+        fitness_csvs.append(fitness_final)
+        
+        
     
     result['Max'] = max_final 
     result['Min'] = min_final
@@ -459,8 +474,8 @@ def main():
     result['STD'] = std_final 
     result.to_csv('ACI_Project2_2324_Data/' + 'results' + '.csv', index = None, header=True, encoding='utf-8')
     
-    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     generate_histograms(best_individuals)
+    generate_boxplots(fitness_csvs)
     
     
     
