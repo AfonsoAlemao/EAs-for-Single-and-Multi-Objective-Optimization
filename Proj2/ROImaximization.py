@@ -55,8 +55,8 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 1
-INITIAL_POPULATION = 10
+GENERATIONS = 100
+INITIAL_POPULATION = 100
 N_RUNS = 1
 INFINITY = np.inf
 GAP_ANALYZED = 20
@@ -281,7 +281,7 @@ def oa_csv(csv_name):
         # A new generation
         g = g + 1
         
-        if (g%50 == 0):
+        if (g % 50 == 0):
             print("-- Generation %i --" % g)
         
         # Select the next generation individuals
@@ -340,7 +340,7 @@ def oa_csv(csv_name):
         # print("  Std %s" % std)
         
         if g > GAP_ANALYZED:
-            improve_perf = max_by_generations[g] - max_by_generations[g - GAP_ANALYZED]  
+            improve_perf = max_by_generations[g - 1] - max_by_generations[g - GAP_ANALYZED - 1]  
         
         best_ind_gen = tools.selBest(pop, 1)[0]
         # print("Best individual in generation %d: %s, %s" % (g, best_ind_gen, best_ind_gen.fitness.values))
@@ -350,86 +350,95 @@ def oa_csv(csv_name):
     
     best_ind = tools.selBest(pop, 1)[0]
     print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
+    print('Obtained at generation ', g)
+    print('Succesive generations maximums ', max_by_generations)
     
     return min(fits), max(fits), mean, std, best_ind, best_ind.fitness.values
 
 
 def generate_histograms(best_individuals):
     
-    #TODO -> 2,3,4,5 ERRADOS
-    
+    data = pd.DataFrame(best_individuals, columns=['RSI_long', 'RSI_short', 'LB_LP', 'UP_LP', 'LB_SP', 'UP_SP'])
+
     # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     array_days = [7, 14, 21]
     array_multiples_five = [5*i for i in range(21)]
     
+    # print('HIST, RSI_long', np.array(best_individuals)[:, 0])
     plt.figure(0)
-    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 0], bins=3, align='mid', edgecolor='k')
-    bin_centers = 0.5 * (bins[:-1] + bins[1:])
-    plt.xticks([])
+    categories = data['RSI_long'].value_counts().index
+    counts = data['RSI_long'].value_counts().values
+    plt.bar(categories, counts, width=7)
     plt.xlabel('RSI period to apply for long positions')
     plt.ylabel('Frequency')
     plt.title('Histogram of RSI_long')
-    for center, label in zip(bin_centers, array_days):
-        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.xlim([3.5, 24.5])
+    plt.xticks(array_days) 
     plt.savefig('RSI_long.png')
     
+    # print('HIST, RSI_short', np.array(best_individuals)[:, 1])
     plt.figure(1)
-    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 1], bins=3, align='mid', edgecolor='k')
-    bin_centers = 0.5 * (bins[:-1] + bins[1:])
-    plt.xticks([])
+    categories = data['RSI_short'].value_counts().index
+    counts = data['RSI_short'].value_counts().values
+    plt.bar(categories, counts, width=7)
     plt.xlabel('RSI period to apply for short positions')
     plt.ylabel('Frequency')
     plt.title('Histogram of RSI_short')
-    for center, label in zip(bin_centers, array_days):
-        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.xlim([3.5, 24.5])
+    plt.xticks(array_days)
     plt.savefig('RSI_short.png')
     
+    # print('HIST, LB_LP', np.array(best_individuals)[:, 2])
     plt.figure(2)
-    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 2], bins=21, align='mid', edgecolor='k')
-    bin_centers = 0.5 * (bins[:-1] + bins[1:])
-    plt.xticks([]) 
+    categories = data['LB_LP'].value_counts().index
+    counts = data['LB_LP'].value_counts().values
+    plt.bar(categories, counts, width=5)
     plt.xlabel('Lower band value to open a long position')
     plt.ylabel('Frequency')
     plt.title('Histogram of LB_LP')
-    for center, label in zip(bin_centers, array_multiples_five):
-        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.xlim([-2.5, 102.5])
+    plt.xticks(array_multiples_five) 
     plt.savefig('LB_LP.png')
     
+    # print('HIST, UP_LP', np.array(best_individuals)[:, 3])
     plt.figure(3)
-    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 3], bins=21, align='mid', edgecolor='k')
-    bin_centers = 0.5 * (bins[:-1] + bins[1:])
-    plt.xticks([])  
+    categories = data['UP_LP'].value_counts().index
+    counts = data['UP_LP'].value_counts().values
+    plt.bar(categories, counts, width=5)
     plt.xlabel('Upper band value to close a long position')
     plt.ylabel('Frequency')
-    plt.title('Histogram of UB_LP')
-    for center, label in zip(bin_centers, array_multiples_five):
-        plt.text(center, 0, str(label), ha='center', va='bottom')
-    plt.savefig('UB_LP.png')
+    plt.title('Histogram of UP_LP')
+    plt.xlim([-2.5, 102.5])
+    plt.xticks(array_multiples_five) 
+    plt.savefig('UP_LP.png')
     
+    # print('HIST, LB_SP', np.array(best_individuals)[:, 4])
     plt.figure(4)
-    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 4], bins=21, align='mid', edgecolor='k')
-    bin_centers = 0.5 * (bins[:-1] + bins[1:])
-    plt.xticks([]) 
+    categories = data['LB_SP'].value_counts().index
+    counts = data['LB_SP'].value_counts().values
+    plt.bar(categories, counts, width=5)
     plt.xlabel('Lower band value to close a short position')
     plt.ylabel('Frequency')
     plt.title('Histogram of LB_SP')
-    for center, label in zip(bin_centers, array_multiples_five):
-        plt.text(center, 0, str(label), ha='center', va='bottom')
+    plt.xlim([-2.5, 102.5])
+    plt.xticks(array_multiples_five) 
     plt.savefig('LB_SP.png')
     
+    # print('HIST, UP_SP', np.array(best_individuals)[:, 5])
     plt.figure(5)
-    hist, bins, _ = plt.hist(np.array(best_individuals)[:, 5], bins=21, align='mid', edgecolor='k')
-    bin_centers = 0.5 * (bins[:-1] + bins[1:])
-    plt.xticks([])   
+    categories = data['UP_SP'].value_counts().index
+    counts = data['UP_SP'].value_counts().values
+    plt.bar(categories, counts, width=5)  
     plt.xlabel('Upper band value to open a short position')
     plt.ylabel('Frequency')
-    plt.title('Histogram of UB_SP')
-    for center, label in zip(bin_centers, array_multiples_five):
-        plt.text(center, 0, str(label), ha='center', va='bottom')
-    plt.savefig('UB_SP.png')
+    plt.title('Histogram of UP_SP')
+    plt.xlim([-2.5, 102.5])
+    plt.xticks(array_multiples_five) 
+    plt.savefig('UP_SP.png')
     
 def generate_boxplots(fitness_csvs):
     #TODO    
+    return
 
 def main():
     
@@ -464,9 +473,7 @@ def main():
         min_final.append(np.mean(list_min))
         avg_final.append(np.mean(list_avg))
         std_final.append(np.mean(list_std))
-        fitness_csvs.append(fitness_final)
-        
-        
+        fitness_csvs.append(fitness_final)        
     
     result['Max'] = max_final 
     result['Min'] = min_final
@@ -477,34 +484,14 @@ def main():
     generate_histograms(best_individuals)
     generate_boxplots(fitness_csvs)
     
-    
-    
 
 import time
-start_time = time.time()
-main()
-print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == "__main__":
     start_time = time.time()
     
     main()
     
-    av_time = (time.time() - start_time) / N_RUNS
-    print("--- %s seconds ---" % (av_time))
+    time_program = time.time() - start_time
+    print("--- %s seconds ---" % (time_program))
     
-    
-
-# Results
-
-# (cxTwoPoint,mutFlipBit): 0.813s
-# (cxTwoPoint,mutGaussian): 0.960s
-# (cxTwoPoint,mutShuffleIndexes): 0.626s
-
-# (cxOnePoint,mutFlipBit): 0.951s
-# (cxOnePoint,mutGaussian): 1.278s
-# (cxOnePoint,mutShuffleIndexes): 0.609s
-
-# (cxPartialyMatched,mutFlipBit): 1.94s
-# (cxPartialyMatched,mutGaussian): NAN
-# (cxPartialyMatched,mutShuffleIndexes): 21.2s
