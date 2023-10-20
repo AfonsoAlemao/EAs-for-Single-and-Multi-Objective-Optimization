@@ -25,18 +25,19 @@ from deap import tools
 from datetime import timedelta
 
 import pandas as pd
+import numpy as np
 
 
-AAL = pd.read_csv('ACI_Project2_2324_Data/AAL.csv', encoding='utf-8') 
-AAPL = pd.read_csv('ACI_Project2_2324_Data/AAPL.csv', encoding='utf-8') 
-AMZN = pd.read_csv('ACI_Project2_2324_Data/AMZN.csv', encoding='utf-8') 
-BAC = pd.read_csv('ACI_Project2_2324_Data/BAC.csv', encoding='utf-8') 
-F = pd.read_csv('ACI_Project2_2324_Data/F.csv', encoding='utf-8') 
-GOOG = pd.read_csv('ACI_Project2_2324_Data/GOOG.csv', encoding='utf-8') 
-IBM = pd.read_csv('ACI_Project2_2324_Data/IBM.csv', encoding='utf-8') 
-INTC = pd.read_csv('ACI_Project2_2324_Data/INTC.csv', encoding='utf-8') 
-NVDA = pd.read_csv('ACI_Project2_2324_Data/NVDA.csv', encoding='utf-8') 
-XOM = pd.read_csv('ACI_Project2_2324_Data/XOM.csv', encoding='utf-8')
+AAL = pd.read_csv('ACI_Project2_2324_Data/AAL.csv', encoding='utf-8', sep=';') 
+AAPL = pd.read_csv('ACI_Project2_2324_Data/AAPL.csv', encoding='utf-8', sep=';') 
+AMZN = pd.read_csv('ACI_Project2_2324_Data/AMZN.csv', encoding='utf-8', sep=';') 
+BAC = pd.read_csv('ACI_Project2_2324_Data/BAC.csv', encoding='utf-8', sep=';') 
+F = pd.read_csv('ACI_Project2_2324_Data/F.csv', encoding='utf-8', sep=';') 
+GOOG = pd.read_csv('ACI_Project2_2324_Data/GOOG.csv', encoding='utf-8', sep=';') 
+IBM = pd.read_csv('ACI_Project2_2324_Data/IBM.csv', encoding='utf-8', sep=';') 
+INTC = pd.read_csv('ACI_Project2_2324_Data/INTC.csv', encoding='utf-8', sep=';') 
+NVDA = pd.read_csv('ACI_Project2_2324_Data/NVDA.csv', encoding='utf-8', sep=';') 
+XOM = pd.read_csv('ACI_Project2_2324_Data/XOM.csv', encoding='utf-8', sep=';')
 
 
 AAL['Date'] = pd.to_datetime(AAL['Date'], format='%d/%m/%Y')  
@@ -50,103 +51,126 @@ INTC['Date'] = pd.to_datetime(INTC['Date'], format='%d/%m/%Y')
 NVDA['Date'] = pd.to_datetime(NVDA['Date'], format='%d/%m/%Y')  
 XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')  
 
+csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
+csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
+
 
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
 
+
+
 toolbox = base.Toolbox()
+
 
 def get_n_days():
     r = random.randint(1, 3)
     return r * 7
 
-def get_multiple_five():
-    r = random.randint(1, 20)
+def get_multiple_five(num, low_high):
+    if low_high == 'low':
+        r = random.randint(1, num / 5 - 1)
+    else:
+        r = random.randint(num / 5 + 1, 20)
+    
     return r * 5
+
+def get_multiple_five_and_get_n_days():
+    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
+    
+    r_days_short = get_n_days()
+    r_days_long = get_n_days()
+    r_multiple5_high_short = get_multiple_five(5, 'high')
+    r_multiple5_low_short = get_multiple_five(r_multiple5_high_short, 'low')
+    
+    r_multiple5_high_long = get_multiple_five(5, 'high')
+    r_multiple5_low_long = get_multiple_five(r_multiple5_high_long, 'low')
+    
+    return [r_days_long, r_days_short, r_multiple5_low_long, r_multiple5_high_long, r_multiple5_low_short, r_multiple5_high_short]
 
 # Attribute generator 
 toolbox.register("n_days", get_n_days)
 toolbox.register("multiple_five", get_multiple_five)
+toolbox.register("get_multiple_five_and_get_n_days", get_multiple_five_and_get_n_days)
 
 # Structure initializers
 #                         define 'individual' to be an individual
 #                         consisting of 100 'attr_bool' elements ('genes')
-toolbox.register("individual", tools.initRepeat, creator.Individual, 
-    toolbox.n_days, 2, toolbox.multiple_five, 4)  # beginLP tem de ser sempre menor que o endLP
+# toolbox.register("individual", tools.initRepeat, creator.Individual, 
+#     toolbox.get_multiple_five_and_get_n_days, 1)  # beginLP tem de ser sempre menor que o endLP
+def generate():
+    part = creator.Individual() 
+    ind = get_multiple_five_and_get_n_days()
+
+    for i in ind:
+        part.append(i)
+    
+    return part
+
+toolbox.register("individual", generate)
+
 
 # define the population to be a list of individuals
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # the goal ('fitness') function to be maximized
-def evalROI(individual):
+def evalROI(individual, csv_name):
     RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
-    
+    # print(individual)
     # Para cada csv calcular ROI (2020-2022)
     # cortar df para periodo 20-22
     start_date = '2020-01-01'
     end_date = '2022-12-31'
     
-    AAL_2020_22 = AAL[(AAL['Date'] >= start_date) & (AAL['Date'] <= end_date)].reset_index(drop=True)
-        
-    previous_date_short = None
-    previous_date_long = None
+    csv = csvs[csvs_names.index(csv_name)]
+    
+    ROI_short = 0
+    ROI_long = 0
+    
+    
+    csv_2020_22 = csv[(csv['Date'] >= start_date) & (csv['Date'] <= end_date)].reset_index(drop=True)
+
     begin_LP = -1 # valor de compra de ações
     end_LP = -1 # valor de venda de ações
     begin_SP = -1
     end_SP = -1
     
-    ROI_short = 0
-    ROI_long = 0
+    
+    
+    if RSI_long == 7:
+        col_RSI_long = 'RSI_7days'
+    elif RSI_long == 14:
+        col_RSI_long = 'RSI_14days'
+    else:
+        col_RSI_long = 'RSI_21days'
+    
+    if RSI_short == 7:
+        col_RSI_short = 'RSI_7days'
+    elif RSI_short == 14:
+        col_RSI_short = 'RSI_14days'
+    else:
+        col_RSI_short = 'RSI_21days'
 
-    for index, row in AAL_2020_22.iterrows():
-        current_date = row['Date']
+    for index, row in csv_2020_22.iterrows():
 
-        if(row['RSI'] <= LB_LP and begin_LP == -1):
-            begin_LP = row['Open']
-            previous_date_long = current_date
-        if(row['RSI'] >= UP_SP and begin_SP == -1):
-            begin_SP = row['Open']
-            previous_date_short = current_date
+        if(row[col_RSI_long] <= LB_LP and begin_LP == -1):
+            begin_LP = row['Close']
+        if(row[col_RSI_short] >= UP_SP and begin_SP == -1):
+            begin_SP = row['Close']
         
-        if(row['RSI'] >= UP_LP):
-            end_LP = row['Open']
-            if(not(begin_LP == -1 and end_LP == -1)):
-                ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
-        
-        if(row['RSI'] <= LB_SP):
-            end_SP = row['Open']
-            ROI_short += ((begin_SP - end_SP)/begin_SP) * 100
-        
-        if current_date - previous_date_long >= timedelta(RSI_long):
-            if (begin_LP > 0) and (end_LP == -1):
-                end_LP = row['Close']
-            if(not(begin_LP == -1 and end_LP == -1)):
-                ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
-            
+        if(row[col_RSI_long] >= UP_LP and begin_LP != -1):
+            end_LP = row['Close']
+            ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
             begin_LP = -1
             end_LP = -1
-                
-        if current_date - previous_date_short >= timedelta(RSI_short):        
-            if (begin_SP > 0) and (end_SP == -1):
-                end_SP = row['Close']
-            if(not(begin_SP == -1 and end_SP == -1)):    
-                ROI_short += ((begin_SP - end_SP)/begin_SP) * 100 
-            
+        
+        if(row[col_RSI_short] <= LB_SP and begin_SP != -1):
+            end_SP = row['Close']
+            ROI_short += ((begin_SP - end_SP)/begin_SP) * 100
             begin_SP = -1
             end_SP = -1
-
-    #chegámos ao fim dos dados: se estivermos a meio de um investimento, temos de o terminar
-    
-    if (begin_SP > 0) and (end_SP == -1):
-        end_SP = row['Close']   
-        ROI_short += ((begin_SP - end_SP)/begin_SP) * 100   
-    
-    if (begin_LP > 0) and (end_LP == -1):
-        end_LP = row['Close']
-        ROI_long += ((end_LP - begin_LP)/begin_LP) * 100  
-    
-    
-    # Retornar media dos ROIs de cada csv
+        
+    # Retornar media dos ROIs de cada individuo
     return (ROI_short + ROI_long)/2,
 
 #----------
@@ -175,8 +199,22 @@ toolbox.register("mate", tools.	cxOnePoint)
 # flip each attribute/gene of 0.05
 # tested
 # toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
-toolbox.register("mutate", tools.mutGaussian,mu=0,sigma=0.05, indpb=0.05)
+# toolbox.register("mutate", tools.mutGaussian,mu=0,sigma=0.05, indpb=0.05)
 # toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.05)
+def mutCustom(individual, indpb):
+    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
+
+    if random.random() <= indpb:
+        random_feature = random.randint(0, 5)
+        if random_feature <= 1:
+            individual[random_feature] = get_n_days()
+        elif random_feature == 2 or random_feature == 4:
+            individual[random_feature] = get_multiple_five(individual[random_feature + 1], 'low')
+        elif random_feature == 3 or random_feature == 5:
+            individual[random_feature] = get_multiple_five(individual[random_feature - 1], 'high')
+    return individual   
+
+toolbox.register('mutate', mutCustom, indpb = 0.05) 
 
 # not tested
 # toolbox.register("mutate", tools.mutPolynomialBounded, indpb=0.05)
@@ -191,12 +229,11 @@ toolbox.register("select", tools.selTournament, tournsize=3)
 
 #----------
 
-def main():
-    random.seed(64)
+def oa_csv(csv_name):
 
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
-    pop = toolbox.population(n=100) #menor que 144
+    pop = toolbox.population(n=10) #menor que 144
 
     # CXPB  is the probability with which two individuals
     #       are crossed
@@ -223,7 +260,7 @@ def main():
     hof = tools.HallOfFame(1)
     
     # Begin the evolution
-    while max(fits) < 100 and g < 1000:
+    while g < 10000:
         # A new generation
         g = g + 1
         print("-- Generation %i --" % g)
@@ -286,6 +323,29 @@ def main():
     
     best_ind = tools.selBest(pop, 1)[0]
     print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
+    
+    return min(fits), max(fits), mean, std
+    
+
+def main():
+    
+    for name in csvs_names:
+        list_max = []
+        list_min = []
+        list_avg = []
+        list_std = []
+        for i in range(N_RUNS):
+            random.seed(i)
+            max, min, avg, std = oa_csv(name)
+            list_max.append(max)
+            list_min.append(min)
+            list_avg.append(avg)
+            list_std.append(std)
+        max = np.mean(list_max)
+        min = np.mean(list_min)
+        avg = np.mean(list_avg)
+        std = np.mean(list_std)
+            
 
 
 import time
@@ -296,9 +356,8 @@ print("--- %s seconds ---" % (time.time() - start_time))
 N_RUNS = 30
 if __name__ == "__main__":
     start_time = time.time()
-    for i in range(N_RUNS):
-        random.seed(i)
-        main()
+    
+    main()
     
     av_time = (time.time() - start_time) / N_RUNS
     print("--- %s seconds ---" % (av_time))
