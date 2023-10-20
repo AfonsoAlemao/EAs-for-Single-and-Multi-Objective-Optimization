@@ -57,9 +57,9 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 10000
-INITIAL_POPULATION = 100 
-N_RUNS = 1
+GENERATIONS = 10
+INITIAL_POPULATION = 5 
+N_RUNS = 3
 INFINITY = np.inf
 GAP_ANALYZED = 50
 PERF_THRESHOLD = 1
@@ -127,13 +127,13 @@ toolbox.register("individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # the goal ('fitness') function to be maximized
-def evalROI(individual, csv_name):
+def evalROI(individual, csv_name, start_date, end_date):
     RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     # print(individual)
     # Para cada csv calcular ROI (2020-2022)
     # cortar df para periodo 20-22
-    start_date = '2020-01-01'
-    end_date = '2022-12-31'
+    # start_date = '2011-01-01'
+    # end_date = '2019-12-31'
     
     csv = csvs[csvs_names.index(csv_name)]
     
@@ -141,7 +141,7 @@ def evalROI(individual, csv_name):
     ROI_long = 0
     
     
-    csv_2020_22 = csv[(csv['Date'] >= start_date) & (csv['Date'] <= end_date)].reset_index(drop=True)
+    csv_2011_19 = csv[(csv['Date'] >= start_date) & (csv['Date'] <= end_date)].reset_index(drop=True)
 
     begin_LP = -1 # valor de compra de ações
     end_LP = -1 # valor de venda de ações
@@ -164,7 +164,7 @@ def evalROI(individual, csv_name):
     else:
         col_RSI_short = 'RSI_21days'
 
-    for index, row in csv_2020_22.iterrows():
+    for index, row in csv_2011_19.iterrows():
 
         if(row[col_RSI_long] <= LB_LP and begin_LP == -1):
             begin_LP = row['Close']
@@ -258,10 +258,13 @@ def oa_csv(csv_name):
     
     print("Start of evolution")
     
+    # start_date = '2011-01-01'
+    # end_date = '2019-12-31'
+    
     # Evaluate the entire population
     fitnesses = []
     for individual in pop:
-        fitnesses.append(toolbox.evaluate(individual, csv_name))
+        fitnesses.append(toolbox.evaluate(individual, csv_name, '2011-01-01', '2019-12-31'))
         
     for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
@@ -316,7 +319,7 @@ def oa_csv(csv_name):
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         fitnesses = []
         for i in invalid_ind:
-            fitnesses.append(toolbox.evaluate(i, csv_name))
+            fitnesses.append(toolbox.evaluate(i, csv_name, '2011-01-01', '2019-12-31'))
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
         
@@ -471,15 +474,25 @@ def generate_boxplots(fitness_csvs):
 
 def main():
     
-    result = pd.DataFrame()
-    result['Stocks'] = csvs_names
+    train_result = pd.DataFrame()
+    train_result['Stocks'] = csvs_names
     
-    max_final = []
-    min_final = []
-    avg_final = []
-    std_final = []
+    test_result = pd.DataFrame()
+    test_result['Stocks'] = csvs_names
+    
+    test_max_final = []
+    test_min_final = []
+    test_avg_final = []
+    test_std_final = []
+    
+    train_max_final = []
+    train_min_final = []
+    train_avg_final = []
+    train_std_final = []
+    
     best_individuals_csvs = []
     fitness_csvs = []
+    eval_csvs = []
     
     for name in csvs_names:
         list_max = []
@@ -488,7 +501,7 @@ def main():
         list_std = []
         fitness_final = []
         best_individuals = []
-         
+        eval_csv = []
         for i in range(N_RUNS):
             random.seed(i)
             max, min, avg, std, best_individual, fitness = oa_csv(name)
@@ -498,21 +511,33 @@ def main():
             list_avg.append(avg)
             list_std.append(std)
             fitness_final.append(fitness[0])
+            eval_csv.append(evalROI(best_individual, name, '2020-01-01', '2022-12-31')) #training
         best_individuals_csvs.append(best_individuals)
-        max_final.append(np.max(list_max))
-        min_final.append(np.min(list_min))
-        avg_final.append(np.mean(list_avg))
-        std_final.append(np.std(fitness_final))
-        fitness_csvs.append(fitness_final)        
+        
+        eval_csvs.append(eval_csv)
+        
+        train_max_final.append(np.max(list_max))
+        train_min_final.append(np.min(list_min))
+        train_avg_final.append(np.mean(list_avg))
+        train_std_final.append(np.std(fitness_final))
+        fitness_csvs.append(fitness_final)  
+        
+        test_max_final.append(np.max(eval_csv))
+        test_min_final.append(np.min(eval_csv))
+        test_avg_final.append(np.mean(eval_csv))
+        test_std_final.append(np.std(eval_csv))      
     
-    result['Max'] = max_final 
-    result['Min'] = min_final
-    result['Mean'] = avg_final 
-    result['STD'] = std_final 
-    result.to_csv('ACI_Project2_2324_Data/' + 'results' + '.csv', index = None, header=True, encoding='utf-8')
+    train_result['Max'] = train_max_final 
+    train_result['Min'] = train_min_final
+    train_result['Mean'] = train_avg_final 
+    train_result['STD'] = train_std_final 
+    train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
     
-    generate_histograms(best_individuals_csvs)
-    generate_boxplots(fitness_csvs)
+    test_result['Max'] = test_max_final 
+    test_result['Min'] = test_min_final
+    test_result['Mean'] = test_avg_final 
+    test_result['STD'] = test_std_final 
+    test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
     
 
 import time
