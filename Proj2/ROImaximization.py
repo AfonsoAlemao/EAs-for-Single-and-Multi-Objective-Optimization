@@ -23,6 +23,7 @@ from deap import base
 from deap import creator
 from deap import tools
 from datetime import timedelta
+import matplotlib.pyplot as plt
 
 import pandas as pd
 import numpy as np
@@ -54,7 +55,13 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-
+GENERATIONS = 1
+INITIAL_POPULATION = 10
+N_RUNS = 1
+INFINITY = np.inf
+GAP_ANALYZED = 20
+PERF_THRESHOLD = 1
+ 
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
 
@@ -68,10 +75,13 @@ def get_n_days():
     return r * 7
 
 def get_multiple_five(num, low_high):
+    
     if low_high == 'low':
-        r = random.randint(1, num / 5 - 1)
+        # get r < num
+        r = random.randint(0, num / 5 - 1)
     else:
-        r = random.randint(num / 5 + 1, 20)
+        # get r >= num
+        r = random.randint(num / 5, 20)
     
     return r * 5
 
@@ -211,7 +221,7 @@ def mutCustom(individual, indpb):
         elif random_feature == 2 or random_feature == 4:
             individual[random_feature] = get_multiple_five(individual[random_feature + 1], 'low')
         elif random_feature == 3 or random_feature == 5:
-            individual[random_feature] = get_multiple_five(individual[random_feature - 1], 'high')
+            individual[random_feature] = get_multiple_five(individual[random_feature - 1] + 5, 'high')
     return individual   
 
 toolbox.register('mutate', mutCustom, indpb = 0.05) 
@@ -233,7 +243,7 @@ def oa_csv(csv_name):
 
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
-    pop = toolbox.population(n=100) #menor que 144
+    pop = toolbox.population(n=INITIAL_POPULATION) #menor que 144
 
     # CXPB  is the probability with which two individuals
     #       are crossed
@@ -262,11 +272,16 @@ def oa_csv(csv_name):
     # Initialize hall of fame     
     hof = tools.HallOfFame(1)
     
+    improve_perf = INFINITY
+    max_by_generations = []
+    
     # Begin the evolution
-    while g < 100:
+    while g < GENERATIONS and improve_perf > PERF_THRESHOLD: 
         # A new generation
         g = g + 1
-        print("-- Generation %i --" % g)
+        
+        if (g%50 == 0):
+            print("-- Generation %i --" % g)
         
         # Select the next generation individuals
         offspring = toolbox.select(pop, len(pop))
@@ -315,10 +330,16 @@ def oa_csv(csv_name):
         sum2 = sum(x*x for x in fits)
         std = abs(sum2 / length - mean**2)**0.5
         
+        
+        max_by_generations.append(max(fits))
+        
         # print("  Min %s" % min(fits))
         # print("  Max %s" % max(fits))
         # print("  Avg %s" % mean)
         # print("  Std %s" % std)
+        
+        if g > GAP_ANALYZED:
+            improve_perf = max_by_generations[g] - max_by_generations[g - GAP_ANALYZED]  
         
         best_ind_gen = tools.selBest(pop, 1)[0]
         # print("Best individual in generation %d: %s, %s" % (g, best_ind_gen, best_ind_gen.fitness.values))
@@ -329,9 +350,80 @@ def oa_csv(csv_name):
     best_ind = tools.selBest(pop, 1)[0]
     print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
     
-    return min(fits), max(fits), mean, std, best_ind.fitness.values
+    return min(fits), max(fits), mean, std, best_ind, best_ind.fitness.values
+
+
+def generate_histograms(best_individuals):
     
-N_RUNS = 1
+        array_days = [7, 14, 21]
+        array_multiples_five = [5*i for i in range(21)]
+        
+        plt.figure(0)
+        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 0], bins=3, align='mid', edgecolor='k')
+        bin_centers = 0.5 * (bins[:-1] + bins[1:])
+        plt.xticks([])
+        plt.xlabel('RSI period to apply for long positions')
+        plt.ylabel('Frequency')
+        plt.title('Histogram of RSI_long')
+        for center, label in zip(bin_centers, array_days):
+            plt.text(center, 0, str(label), ha='center', va='bottom')
+        plt.savefig('RSI_long.png')
+        
+        plt.figure(1)
+        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 1], bins=3, align='mid', edgecolor='k')
+        bin_centers = 0.5 * (bins[:-1] + bins[1:])
+        plt.xticks([])
+        plt.xlabel('RSI period to apply for short positions')
+        plt.ylabel('Frequency')
+        plt.title('Histogram of RSI_short')
+        for center, label in zip(bin_centers, array_days):
+            plt.text(center, 0, str(label), ha='center', va='bottom')
+        plt.savefig('RSI_short.png')
+        
+        plt.figure(2)
+        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 2], bins=21, align='mid', edgecolor='k')
+        bin_centers = 0.5 * (bins[:-1] + bins[1:])
+        plt.xticks([]) 
+        plt.xlabel('Lower band value to open a long position')
+        plt.ylabel('Frequency')
+        plt.title('Histogram of LB_LP')
+        for center, label in zip(bin_centers, array_multiples_five):
+            plt.text(center, 0, str(label), ha='center', va='bottom')
+        plt.savefig('LB_LP.png')
+        
+        plt.figure(3)
+        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 3], bins=21, align='mid', edgecolor='k')
+        bin_centers = 0.5 * (bins[:-1] + bins[1:])
+        plt.xticks([])  
+        plt.xlabel('Upper band value to close a long position')
+        plt.ylabel('Frequency')
+        plt.title('Histogram of UB_LP')
+        for center, label in zip(bin_centers, array_multiples_five):
+            plt.text(center, 0, str(label), ha='center', va='bottom')
+        plt.savefig('UB_LP.png')
+        
+        plt.figure(4)
+        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 4], bins=21, align='mid', edgecolor='k')
+        bin_centers = 0.5 * (bins[:-1] + bins[1:])
+        plt.xticks([]) 
+        plt.xlabel('Lower band value to close a short position')
+        plt.ylabel('Frequency')
+        plt.title('Histogram of LB_SP')
+        for center, label in zip(bin_centers, array_multiples_five):
+            plt.text(center, 0, str(label), ha='center', va='bottom')
+        plt.savefig('LB_SP.png')
+        
+        plt.figure(5)
+        hist, bins, _ = plt.hist(np.array(best_individuals)[:, 5], bins=21, align='mid', edgecolor='k')
+        bin_centers = 0.5 * (bins[:-1] + bins[1:])
+        plt.xticks([])   
+        plt.xlabel('Upper band value to open a short position')
+        plt.ylabel('Frequency')
+        plt.title('Histogram of UB_SP')
+        for center, label in zip(bin_centers, array_multiples_five):
+            plt.text(center, 0, str(label), ha='center', va='bottom')
+        plt.savefig('UB_SP.png')
+    
 
 def main():
     
@@ -365,9 +457,13 @@ def main():
     result['Min'] = min_final
     result['Mean'] = avg_final 
     result['STD'] = std_final 
-    result.to_csv('ACI_Project2_2324_Data/' + 'results' + '.csv', 
-            index = None,
-            header=True, encoding='utf-8')
+    result.to_csv('ACI_Project2_2324_Data/' + 'results' + '.csv', index = None, header=True, encoding='utf-8')
+    
+    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
+    generate_histograms(best_individuals)
+    
+    
+    
 
 import time
 start_time = time.time()
