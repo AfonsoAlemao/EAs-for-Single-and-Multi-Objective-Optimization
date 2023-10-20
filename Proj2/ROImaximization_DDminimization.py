@@ -64,8 +64,8 @@ INFINITY = np.inf
 GAP_ANALYZED = 50
 PERF_THRESHOLD = 1
  
-creator.create("FitnessMax", base.Fitness, weights=(1.0,))
-creator.create("Individual", list, fitness=creator.FitnessMax)
+creator.create("FitnessMaxMin", base.Fitness, weights=(1.0, -1.0))
+creator.create("Individual", list, fitness=creator.FitnessMaxMin)
 
 
 toolbox = base.Toolbox()
@@ -239,22 +239,26 @@ toolbox.register('mutate', mutCustom, indpb = 0.5)
 # is replaced by the 'fittest' (best) of three individuals
 # drawn randomly from the current generation.
 # toolbox.register("select", tools.selRoulette)
-toolbox.register("select", tools.selTournament, tournsize=2)
+# toolbox.register("select", tools.selTournament, tournsize=2)
+toolbox.register("select", tools.selNSGA2)
 
 #----------
 
 def oa_csv(csv_name, start_date_training, end_date_training):
-    if csv_name == 'GOOG':
-        print('aqui')
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
+    
+    pareto = tools.ParetoFront()
+    
     pop = toolbox.population(n=INITIAL_POPULATION) #menor que 144
-
+    
     # CXPB  is the probability with which two individuals
     #       are crossed
     #
     # MUTPB is the probability for mutating an individual
     CXPB, MUTPB = 0.5, 0.5
+    
+    
     
     print("Start of evolution")
     
@@ -330,7 +334,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             pop[:] = offspring
         else:
             print('hey')
-                
+        
+        pareto.update(pop)
         hof.update(pop)
         
         # Gather all the fitnesses in one list and print the stats
@@ -363,7 +368,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     print('Obtained at generation ', g)
     print('Succesive generations maximums ', max_by_generations)
     
-    return max(fits), min(fits), mean, std, best_ind, best_ind.fitness.values
+    return max(fits), min(fits), mean, std, best_ind, best_ind.fitness.values, pareto
 
 def generate_histograms(best_individuals):
     
@@ -461,7 +466,10 @@ def generate_boxplots(fitness_csvs):
     plt.savefig('normalized_boxplot.png')
     return
 
-def main3_2(start_date_training, end_date_training):
+def generate_paretos(pareto_csvs):
+    
+
+def main3_4_1(start_date_training, end_date_training):
     
     result = pd.DataFrame()
     result['Stocks'] = csvs_names
@@ -472,6 +480,7 @@ def main3_2(start_date_training, end_date_training):
     std_final = []
     best_individuals_csvs = []
     fitness_csvs = []
+    pareto_csvs = []
     
     for name in csvs_names:
         list_max = []
@@ -480,11 +489,13 @@ def main3_2(start_date_training, end_date_training):
         list_std = []
         fitness_final = []
         best_individuals = []
+        pareto_csv = []
         print(name)
          
         for i in range(N_RUNS):
             random.seed(i)
-            max, min, avg, std, best_individual, fitness = oa_csv(name, start_date_training, end_date_training)
+            max, min, avg, std, best_individual, fitness, pareto = oa_csv(name, start_date_training, end_date_training)
+            pareto_csv.append(pareto)
             best_individuals.append(best_individual)
             list_max.append(max)
             list_min.append(min)
@@ -496,7 +507,8 @@ def main3_2(start_date_training, end_date_training):
         min_final.append(np.min(list_min))
         avg_final.append(np.mean(list_avg))
         std_final.append(np.std(fitness_final))
-        fitness_csvs.append(fitness_final)        
+        fitness_csvs.append(fitness_final)
+        pareto_csvs.append(pareto_csv)        
     
     result['Max'] = max_final 
     result['Min'] = min_final
@@ -507,7 +519,7 @@ def main3_2(start_date_training, end_date_training):
     generate_histograms(best_individuals_csvs)
     generate_boxplots(fitness_csvs)
     
-def main3_3(start_date_training, end_date_training):
+def main3_4_2(start_date_training, end_date_training):
     
     train_result = pd.DataFrame()
     train_result['Stocks'] = csvs_names
