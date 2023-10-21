@@ -57,9 +57,9 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 10000
-INITIAL_POPULATION = 64 
-N_RUNS = 30
+GENERATIONS = 10
+INITIAL_POPULATION = 4
+N_RUNS = 2
 INFINITY = np.inf
 GAP_ANALYZED = 50
 PERF_THRESHOLD = 1
@@ -125,7 +125,7 @@ toolbox.register("individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # the goal ('fitness') function to be maximized
-def evalROI(individual, csv_name, start_date, end_date):
+def evalROI_DD(individual, csv_name, start_date, end_date):
     RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     # print(individual)
     # Para cada csv calcular ROI (2020-2022)
@@ -161,34 +161,52 @@ def evalROI(individual, csv_name, start_date, end_date):
         col_RSI_short = 'RSI_14days'
     else:
         col_RSI_short = 'RSI_21days'
+        
+    minLong = INFINITY
+    maxShort = -INFINITY
+    
+    DD = 0 # Drawdown
 
     for index, row in csv_2020_22.iterrows():
 
         if(row[col_RSI_long] <= LB_LP and begin_LP == -1):
             begin_LP = row['Close']
+            minLong = begin_LP
         if(row[col_RSI_short] >= UP_SP and begin_SP == -1):
             begin_SP = row['Close']
+            maxShort = begin_SP
+        
+        if(begin_LP !=-1 and row['Close'] < minLong):
+            minLong = row['Close']
+            
+        if(begin_SP !=-1 and row['Close'] > maxShort):
+            maxShort = row['Close']
+            
         
         if(row[col_RSI_long] >= UP_LP and begin_LP != -1):
             end_LP = row['Close']
             ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
+            DD += (begin_LP - minLong) / begin_LP
+            minLong = INFINITY
             begin_LP = -1
             end_LP = -1
         
         if(row[col_RSI_short] <= LB_SP and begin_SP != -1):
             end_SP = row['Close']
             ROI_short += ((begin_SP - end_SP)/begin_SP) * 100
+            DD += (maxShort - begin_SP) / begin_SP
+            maxShort = -INFINITY
             begin_SP = -1
             end_SP = -1
         
     # Retornar media dos ROIs de cada individuo
-    return (ROI_short + ROI_long)/2,
+    return (ROI_short + ROI_long)/2, DD
 
 #----------
 # Operator registration
 #----------
 # register the goal / fitness function
-toolbox.register("evaluate", evalROI)
+toolbox.register("evaluate", evalROI_DD)
 
 # register the crossover operator
 #tested
@@ -252,13 +270,15 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     pop = toolbox.population(n=INITIAL_POPULATION) #menor que 144
     
+    pop = toolbox.select(pop, len(pop))
+    
+    
+    
     # CXPB  is the probability with which two individuals
     #       are crossed
     #
     # MUTPB is the probability for mutating an individual
     CXPB, MUTPB = 0.5, 0.5
-    
-    
     
     print("Start of evolution")
     
@@ -274,7 +294,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
 
     # Extracting all the fitnesses of 
     fits = [ind.fitness.values[0] for ind in pop]
-
+    
+    pareto.update(pop)
     # Variable keeping track of the number of generations
     g = 0
     
@@ -294,11 +315,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             print("-- Generation %i --" % g)
         
         # Select the next generation individuals
-        offspring = toolbox.select(pop, len(pop))
-        # print(len(offspring))
-        # Clone the selected individuals
-        offspring = list(map(toolbox.clone, offspring))
-        
+        offspring = tools.selTournamentDCD(pop, len(pop))
+        offspring = [toolbox.clone(ind) for ind in offspring]
         
         # Apply crossover and mutation on the offspring
         for child1, child2 in zip(offspring[::2], offspring[1::2]):
@@ -330,16 +348,16 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # print("  Evaluated %i individuals" % len(invalid_ind))
         
         # The population is entirely replaced by the offspring
-        if offspring != []:
-            pop[:] = offspring
-        else:
-            print('hey')
         
-        pareto.update(pop)
-        hof.update(pop)
+        pop = toolbox.select(pop + offspring, INITIAL_POPULATION)
+        
+        
         
         # Gather all the fitnesses in one list and print the stats
         fits = [ind.fitness.values[0] for ind in pop]
+        
+        pareto.update(pop)
+        hof.update(pop)
         
         length = len(pop)
         mean = sum(fits) / length
@@ -370,104 +388,22 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     return max(fits), min(fits), mean, std, best_ind, best_ind.fitness.values, pareto
 
-def generate_histograms(best_individuals):
-    
-    best_individuals_copy = [sublist for outer_list in best_individuals for sublist in outer_list]
-    data = pd.DataFrame(best_individuals_copy, columns=['RSI_long', 'RSI_short', 'LB_LP', 'UP_LP', 'LB_SP', 'UP_SP'])
-
-    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
-    array_days = [7, 14, 21]
-    array_multiples_five = [5*i for i in range(21)]
-    
-    # print('HIST, RSI_long', np.array(best_individuals_copy)[:, 0])
-    plt.figure(0)
-    categories = data['RSI_long'].value_counts().index
-    counts = data['RSI_long'].value_counts().values
-    plt.bar(categories, counts, width=7)
-    plt.xlabel('RSI period to apply for long positions')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of RSI_long')
-    plt.xlim([3.5, 24.5])
-    plt.xticks(array_days) 
-    plt.savefig('RSI_long.png')
-    
-    # print('HIST, RSI_short', np.array(best_individuals_copy)[:, 1])
-    plt.figure(1)
-    categories = data['RSI_short'].value_counts().index
-    counts = data['RSI_short'].value_counts().values
-    plt.bar(categories, counts, width=7)
-    plt.xlabel('RSI period to apply for short positions')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of RSI_short')
-    plt.xlim([3.5, 24.5])
-    plt.xticks(array_days)
-    plt.savefig('RSI_short.png')
-    
-    # print('HIST, LB_LP', np.array(best_individuals_copy)[:, 2])
-    plt.figure(2)
-    categories = data['LB_LP'].value_counts().index
-    counts = data['LB_LP'].value_counts().values
-    plt.bar(categories, counts, width=5)
-    plt.xlabel('Lower band value to open a long position')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of LB_LP')
-    plt.xlim([-2.5, 102.5])
-    plt.xticks(array_multiples_five) 
-    plt.savefig('LB_LP.png')
-    
-    # print('HIST, UP_LP', np.array(best_individuals_copy)[:, 3])
-    plt.figure(3)
-    categories = data['UP_LP'].value_counts().index
-    counts = data['UP_LP'].value_counts().values
-    plt.bar(categories, counts, width=5)
-    plt.xlabel('Upper band value to close a long position')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of UP_LP')
-    plt.xlim([-2.5, 102.5])
-    plt.xticks(array_multiples_five) 
-    plt.savefig('UP_LP.png')
-    
-    # print('HIST, LB_SP', np.array(best_individuals_copy)[:, 4])
-    plt.figure(4)
-    categories = data['LB_SP'].value_counts().index
-    counts = data['LB_SP'].value_counts().values
-    plt.bar(categories, counts, width=5)
-    plt.xlabel('Lower band value to close a short position')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of LB_SP')
-    plt.xlim([-2.5, 102.5])
-    plt.xticks(array_multiples_five) 
-    plt.savefig('LB_SP.png')
-    
-    # print('HIST, UP_SP', np.array(best_individuals_copy)[:, 5])
-    plt.figure(5)
-    categories = data['UP_SP'].value_counts().index
-    counts = data['UP_SP'].value_counts().values
-    plt.bar(categories, counts, width=5)  
-    plt.xlabel('Upper band value to open a short position')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of UP_SP')
-    plt.xlim([-2.5, 102.5])
-    plt.xticks(array_multiples_five) 
-    plt.savefig('UP_SP.png')
-    
-def generate_boxplots(fitness_csvs):
-    
-    max = np.amax(fitness_csvs)
-    min = np.amin(fitness_csvs)  
-
-    normalized_fitness_csvs = (np.array(fitness_csvs) - min) / (max - min)            
-    
-    plt.figure(6)
-    plt.boxplot(normalized_fitness_csvs.T, labels=csvs_names)
-    plt.xlabel('Stocks')
-    plt.ylabel('Normalized ROI')
-    plt.title('Normalized ROI Boxplot')
-    plt.savefig('normalized_boxplot.png')
-    return
-
 def generate_paretos(pareto_csvs):
+    # Plot current population and Pareto front
+    for i, pareto_csv in enumerate(pareto_csvs):
+        plt.figure(i)
+        
+        plt.xlabel("ROI")
+        plt.ylabel("DD")
+        plt.title('Pareto front ' + csvs_names[i])
+        for j in range(N_RUNS):
+            front = np.array([ind.fitness.values for ind in pareto_csv[j]])
+            plt.scatter(front[:, 0], front[:, 1], c="r", label="Pareto Front")
+            
+        plt.savefig('3_4_1_pareto_' + csvs_names[i] + '.png')
+        plt.show() 
     
+        
 
 def main3_4_1(start_date_training, end_date_training):
     
@@ -516,8 +452,7 @@ def main3_4_1(start_date_training, end_date_training):
     result['STD'] = std_final 
     result.to_csv('ACI_Project2_2324_Data/' + 'results' + '.csv', index = None, header=True, encoding='utf-8')
     
-    generate_histograms(best_individuals_csvs)
-    generate_boxplots(fitness_csvs)
+    generate_paretos(pareto_csvs)
     
 def main3_4_2(start_date_training, end_date_training):
     
@@ -559,7 +494,7 @@ def main3_4_2(start_date_training, end_date_training):
             list_avg.append(avg)
             list_std.append(std)
             fitness_final.append(fitness[0])
-            eval_csv.append(evalROI(best_individual, name, '2020-01-01', '2022-12-31')) #training
+            eval_csv.append(evalROI_DD(best_individual, name, '2020-01-01', '2022-12-31')) #training
         best_individuals_csvs.append(best_individuals)
         
         eval_csvs.append(eval_csv)
@@ -592,8 +527,8 @@ import time
 if __name__ == "__main__":
     start_time = time.time()
     
-    main3_2('2020-01-01', '2022-12-31')
-    # main3_3('2011-01-01', '2019-12-31')
+    main3_4_1('2020-01-01', '2022-12-31')
+    # main3_4_2('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))

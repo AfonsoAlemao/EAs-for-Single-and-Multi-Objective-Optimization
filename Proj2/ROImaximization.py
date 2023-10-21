@@ -57,8 +57,8 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 10000
-INITIAL_POPULATION = 64 
+GENERATIONS = 156
+INITIAL_POPULATION = 64
 N_RUNS = 30
 INFINITY = np.inf
 GAP_ANALYZED = 50
@@ -326,10 +326,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # print("  Evaluated %i individuals" % len(invalid_ind))
         
         # The population is entirely replaced by the offspring
-        if offspring != []:
-            pop[:] = offspring
-        else:
-            print('hey')
+        pop = toolbox.select(pop + offspring, INITIAL_POPULATION)
                 
         hof.update(pop)
         
