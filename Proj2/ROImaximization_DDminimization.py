@@ -448,7 +448,7 @@ def main3_4_1(start_date_training, end_date_training):
     result['Min'] = min_final
     result['Mean'] = avg_final 
     result['STD'] = std_final 
-    result.to_csv('ACI_Project2_2324_Data/' + 'results' + '.csv', index = None, header=True, encoding='utf-8')
+    result.to_csv('ACI_Project2_2324_Data/' + 'results_3_4_1' + '.csv', index = None, header=True, encoding='utf-8')
     
     generate_paretos(pareto_csvs)
     
@@ -485,7 +485,7 @@ def main3_4_2(start_date_training, end_date_training):
         eval_csv = []
         for i in range(N_RUNS):
             random.seed(i)
-            max, min, avg, std, best_individual, fitness = oa_csv(name, start_date_training, end_date_training)
+            max, min, avg, std, best_individual, fitness, _ = oa_csv(name, start_date_training, end_date_training)
             best_individuals.append(best_individual)
             list_max.append(max)
             list_min.append(min)
@@ -512,21 +512,21 @@ def main3_4_2(start_date_training, end_date_training):
     train_result['Min'] = train_min_final
     train_result['Mean'] = train_avg_final 
     train_result['STD'] = train_std_final 
-    train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
+    train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
     
     test_result['Max'] = test_max_final 
     test_result['Min'] = test_min_final
     test_result['Mean'] = test_avg_final 
     test_result['STD'] = test_std_final 
-    test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
+    test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
 
 import time
 
 if __name__ == "__main__":
     start_time = time.time()
     
-    main3_4_1('2020-01-01', '2022-12-31')
-    # main3_4_2('2011-01-01', '2019-12-31')
+    # main3_4_1('2020-01-01', '2022-12-31')
+    main3_4_2('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
