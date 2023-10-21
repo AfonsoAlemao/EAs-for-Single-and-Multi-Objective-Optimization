@@ -63,7 +63,7 @@ N_RUNS = 1
 INFINITY = np.inf
 GAP_ANALYZED = 50
 PERF_THRESHOLD = 1
-MUTPB, CXPB  = 0.8, 0.8
+MUTPB, CXPB  = 0.1, 0.7
  
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)

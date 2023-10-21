@@ -57,12 +57,17 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 156
-INITIAL_POPULATION = 64
-N_RUNS = 2
+GENERATIONS = 1
+INITIAL_POPULATION = 4
+N_RUNS = 1
 INFINITY = np.inf
 GAP_ANALYZED = 50
 PERF_THRESHOLD = 1
+
+CXPB, MUTPB = 0.5, 0.5
+indpbMut = 0.5
+CrossType = 'OnePoint'
+SelType = 'Torn2'
  
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -227,7 +232,7 @@ def mutCustom(individual, indpb):
 
     return new_individual   
 
-toolbox.register('mutate', mutCustom, indpb = 0.5) 
+toolbox.register('mutate', mutCustom, indpb = indpbMut) 
 
 # not tested
 # toolbox.register("mutate", tools.mutPolynomialBounded, indpb=0.05)
@@ -243,6 +248,7 @@ toolbox.register("select", tools.selTournament, tournsize=2)
 
 #----------
 
+
 def oa_csv(csv_name, start_date_training, end_date_training):
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
@@ -252,7 +258,6 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     #       are crossed
     #
     # MUTPB is the probability for mutating an individual
-    CXPB, MUTPB = 0.5, 0.5
     
     print("Start of evolution")
     
@@ -459,7 +464,9 @@ def generate_boxplots(fitness_csvs):
 def main3_2(start_date_training, end_date_training):
     
     result = pd.DataFrame()
-    result['Stocks'] = csvs_names
+    csvs_names_to_df = csvs_names.copy()
+    csvs_names_to_df.append(None)
+    result['Stocks'] = csvs_names_to_df
     
     max_final = []
     min_final = []
@@ -493,11 +500,18 @@ def main3_2(start_date_training, end_date_training):
         std_final.append(np.std(fitness_final))
         fitness_csvs.append(fitness_final)        
     
+    max_final.append(np.mean(max_final))
+    min_final.append(None)
+    avg_final.append(None)
+    std_final.append(None)
+    
     result['Max'] = max_final 
     result['Min'] = min_final
     result['Mean'] = avg_final 
     result['STD'] = std_final 
-    result.to_csv('ACI_Project2_2324_Data/' + 'results' + '.csv', index = None, header=True, encoding='utf-8')
+    
+    nameee = '_PMut' + str(MUTPB) + '_indpb' + str(indpbMut) + '_Cross' + CrossType + '_PCross' + str(CXPB) + '_Sel' + SelType
+    result.to_csv('ACI_Project2_2324_Data/' + 'results' + nameee + '.csv', index = None, header=True, encoding='utf-8')
     
     generate_histograms(best_individuals_csvs)
     generate_boxplots(fitness_csvs)
