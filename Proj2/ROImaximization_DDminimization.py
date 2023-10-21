@@ -392,7 +392,6 @@ def generate_paretos(pareto_csvs):
     # Plot current population and Pareto front
     for i, pareto_csv in enumerate(pareto_csvs):
         plt.figure(i)
-        
         plt.xlabel("ROI")
         plt.ylabel("DD")
         plt.title('Pareto front ' + csvs_names[i])
@@ -401,7 +400,6 @@ def generate_paretos(pareto_csvs):
             plt.scatter(front[:, 0], front[:, 1], c="r", label="Pareto Front")
             
         plt.savefig('3_4_1_pareto_' + csvs_names[i] + '.png')
-        plt.show() 
     
         
 
