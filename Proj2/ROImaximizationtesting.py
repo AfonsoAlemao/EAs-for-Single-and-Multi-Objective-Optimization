@@ -25,6 +25,7 @@ from deap import tools
 from datetime import timedelta
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
+import math
 
 
 import pandas as pd
@@ -57,16 +58,17 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 1
-INITIAL_POPULATION = 4
-N_RUNS = 1
+GENERATIONS = 20
+INITIAL_POPULATION = 64
+N_RUNS = 5
 INFINITY = np.inf
-GAP_ANALYZED = 50
+GAP_ANALYZED = 8
 PERF_THRESHOLD = 1
 
-CXPB, MUTPB = 0.5, 0.5
+MUTPB = 0.7
 indpbMut = 0.5
-CrossType = 'OnePoint'
+CrossType = 'cxUniform'
+CXPB = 0.7
 SelType = 'Torn2'
  
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
@@ -198,8 +200,29 @@ toolbox.register("evaluate", evalROI)
 # register the crossover operator
 #tested
 # toolbox.register("mate", tools.cxTwoPoint)
-toolbox.register("mate", tools.	cxOnePoint)
+toolbox.register("mate", tools.cxUniform, indpb = 0.5)
 # toolbox.register("mate", tools.	cxPartialyMatched)
+
+def blending(individual1, individual2):
+    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
+    new_individual1 = individual1.copy()
+    new_individual2 = individual2.copy()
+    new_individual = individual1.copy() 
+    for i in range(len(new_individual)):
+        if i >= 2:
+            factor = 5
+            new_individual[i] = (new_individual1[i] + new_individual2[i])/(2*factor)
+            random_num = random.randint(0,1)
+            if random_num == 0:
+                new_individual[i] = math.floor(new_individual[i]) * factor
+            else:
+                new_individual[i] = math.ceil(new_individual[i]) * factor
+            
+    return new_individual   
+
+# toolbox.register("mate", blending)
+
+
 
 # not tested
 # toolbox.register("mate", tools.cxUniform)
