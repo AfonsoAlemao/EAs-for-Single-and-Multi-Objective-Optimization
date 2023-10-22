@@ -67,8 +67,7 @@ PERF_THRESHOLD = 1
 
 MUTPB = 0.7
 indpbMut = 0.5
-CrossType = 'cxUniform'
-CXPB = 0.7
+CrossType = 'OnePoint'
 SelType = 'Torn2'
  
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
@@ -202,27 +201,6 @@ toolbox.register("evaluate", evalROI)
 # toolbox.register("mate", tools.cxTwoPoint)
 toolbox.register("mate", tools.cxUniform, indpb = 0.5)
 # toolbox.register("mate", tools.	cxPartialyMatched)
-
-def blending(individual1, individual2):
-    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
-    new_individual1 = individual1.copy()
-    new_individual2 = individual2.copy()
-    new_individual = individual1.copy() 
-    for i in range(len(new_individual)):
-        if i >= 2:
-            factor = 5
-            new_individual[i] = (new_individual1[i] + new_individual2[i])/(2*factor)
-            random_num = random.randint(0,1)
-            if random_num == 0:
-                new_individual[i] = math.floor(new_individual[i]) * factor
-            else:
-                new_individual[i] = math.ceil(new_individual[i]) * factor
-            
-    return new_individual   
-
-# toolbox.register("mate", blending)
-
-
 
 # not tested
 # toolbox.register("mate", tools.cxUniform)
@@ -539,73 +517,73 @@ def main3_2(start_date_training, end_date_training):
     generate_histograms(best_individuals_csvs)
     generate_boxplots(fitness_csvs)
     
-def main3_3(start_date_training, end_date_training):
+# def main3_3(start_date_training, end_date_training):
     
-    train_result = pd.DataFrame()
-    train_result['Stocks'] = csvs_names
+#     train_result = pd.DataFrame()
+#     train_result['Stocks'] = csvs_names
     
-    test_result = pd.DataFrame()
-    test_result['Stocks'] = csvs_names
+#     test_result = pd.DataFrame()
+#     test_result['Stocks'] = csvs_names
     
-    test_max_final = []
-    test_min_final = []
-    test_avg_final = []
-    test_std_final = []
+#     test_max_final = []
+#     test_min_final = []
+#     test_avg_final = []
+#     test_std_final = []
     
-    train_max_final = []
-    train_min_final = []
-    train_avg_final = []
-    train_std_final = []
+#     train_max_final = []
+#     train_min_final = []
+#     train_avg_final = []
+#     train_std_final = []
     
-    best_individuals_csvs = []
-    fitness_csvs = []
-    eval_csvs = []
+#     best_individuals_csvs = []
+#     fitness_csvs = []
+#     eval_csvs = []
     
-    for name in csvs_names:
+#     for name in csvs_names:
         
-        list_max = []
-        list_min = []
-        list_avg = []
-        list_std = []
-        fitness_final = []
-        best_individuals = []
-        eval_csv = []
-        for i in range(N_RUNS):
-            random.seed(i)
-            max, min, avg, std, best_individual, fitness = oa_csv(name, start_date_training, end_date_training)
-            best_individuals.append(best_individual)
-            list_max.append(max)
-            list_min.append(min)
-            list_avg.append(avg)
-            list_std.append(std)
-            fitness_final.append(fitness[0])
-            eval_csv.append(evalROI(best_individual, name, '2020-01-01', '2022-12-31')) #training
-        best_individuals_csvs.append(best_individuals)
+#         list_max = []
+#         list_min = []
+#         list_avg = []
+#         list_std = []
+#         fitness_final = []
+#         best_individuals = []
+#         eval_csv = []
+#         for i in range(N_RUNS):
+#             random.seed(i)
+#             max, min, avg, std, best_individual, fitness = oa_csv(name, start_date_training, end_date_training)
+#             best_individuals.append(best_individual)
+#             list_max.append(max)
+#             list_min.append(min)
+#             list_avg.append(avg)
+#             list_std.append(std)
+#             fitness_final.append(fitness[0])
+#             eval_csv.append(evalROI(best_individual, name, '2020-01-01', '2022-12-31')) #training
+#         best_individuals_csvs.append(best_individuals)
         
-        eval_csvs.append(eval_csv)
+#         eval_csvs.append(eval_csv)
         
-        train_max_final.append(np.max(list_max))
-        train_min_final.append(np.min(list_min))
-        train_avg_final.append(np.mean(list_avg))
-        train_std_final.append(np.std(fitness_final))
-        fitness_csvs.append(fitness_final)  
+#         train_max_final.append(np.max(list_max))
+#         train_min_final.append(np.min(list_min))
+#         train_avg_final.append(np.mean(list_avg))
+#         train_std_final.append(np.std(fitness_final))
+#         fitness_csvs.append(fitness_final)  
         
-        test_max_final.append(np.max(eval_csv))
-        test_min_final.append(np.min(eval_csv))
-        test_avg_final.append(np.mean(eval_csv))
-        test_std_final.append(np.std(eval_csv))      
+#         test_max_final.append(np.max(eval_csv))
+#         test_min_final.append(np.min(eval_csv))
+#         test_avg_final.append(np.mean(eval_csv))
+#         test_std_final.append(np.std(eval_csv))      
     
-    train_result['Max'] = train_max_final 
-    train_result['Min'] = train_min_final
-    train_result['Mean'] = train_avg_final 
-    train_result['STD'] = train_std_final 
-    train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
+#     train_result['Max'] = train_max_final 
+#     train_result['Min'] = train_min_final
+#     train_result['Mean'] = train_avg_final 
+#     train_result['STD'] = train_std_final 
+#     train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
     
-    test_result['Max'] = test_max_final 
-    test_result['Min'] = test_min_final
-    test_result['Mean'] = test_avg_final 
-    test_result['STD'] = test_std_final 
-    test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
+#     test_result['Max'] = test_max_final 
+#     test_result['Min'] = test_min_final
+#     test_result['Mean'] = test_avg_final 
+#     test_result['STD'] = test_std_final 
+#     test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
 
 import time
 
