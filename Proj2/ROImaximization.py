@@ -252,7 +252,7 @@ toolbox.register("select", tools.selTournament, tournsize=2)
 def oa_csv(csv_name, start_date_training, end_date_training):
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
-    pop = toolbox.population(n=INITIAL_POPULATION) #menor que 144
+    pop = toolbox.population(n=INITIAL_POPULATION) 
 
     # CXPB  is the probability with which two individuals
     #       are crossed

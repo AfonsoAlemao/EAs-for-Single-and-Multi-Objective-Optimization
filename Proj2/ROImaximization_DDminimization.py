@@ -249,10 +249,10 @@ def mutCustom(individual, indpb):
 
 toolbox.register('mutate', mutCustom, indpb = 0.5) 
 
-# operator for selecting individuals for breeding the next
+# operator for selecting individuals for breeding the next 
 # generation: each individual of the current generation
 # is replaced by the 'fittest' (best) of three individuals
-# drawn randomly from the current generation.
+# drawn randomly from the current generation
 toolbox.register("select", tools.selNSGA2)
 
 #----------
@@ -263,7 +263,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     pareto = tools.ParetoFront()
     
-    pop = toolbox.population(n=INITIAL_POPULATION) #menor que 144
+    pop = toolbox.population(n=INITIAL_POPULATION) 
     
     pop = toolbox.select(pop, len(pop))
     

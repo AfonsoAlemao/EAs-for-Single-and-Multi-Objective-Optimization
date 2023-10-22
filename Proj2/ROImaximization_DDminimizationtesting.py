@@ -269,7 +269,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     pareto = tools.ParetoFront()
     
-    pop = toolbox.population(n=INITIAL_POPULATION) #menor que 144
+    pop = toolbox.population(n=INITIAL_POPULATION) 
     
     pop = toolbox.select(pop, len(pop))
     
