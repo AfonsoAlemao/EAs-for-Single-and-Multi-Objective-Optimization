@@ -384,17 +384,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         pareto.update(pop)
         hof.update(pop)
         
-        length = len(pop)
-        
-        # meanROI = sum(fits[0]) / length
-        # sum2ROI = sum(x*x for x in fits[0])
-        # stdROI = abs(sum2ROI / length - meanROI**2)**0.5
-        max_by_generationsROI.append(max(fits[0]))
-        
-        # meanDD = sum(fits[1]) / length
-        # sum2DD = sum(x*x for x in fits[1])
-        # stdDD = abs(sum2DD / length - meanDD**2)**0.5
-        min_by_generationsDD.append(min(fits[0]))
+        max_by_generationsROI.append(max(fits, key=lambda x: x[0])[0])
+        min_by_generationsDD.append(min(fits, key=lambda x: x[1])[1])
         
         # print("  Min %s" % min(fits))
         # print("  Max %s" % max(fits))
