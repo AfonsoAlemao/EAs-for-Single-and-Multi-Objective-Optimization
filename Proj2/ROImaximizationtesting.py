@@ -185,7 +185,9 @@ def evalROI(individual, csv_name, start_date, end_date):
             ROI_short += ((begin_SP - end_SP)/begin_SP) * 100
             begin_SP = -1
             end_SP = -1
-        
+
+    if ROI_short < 0 or ROI_long < 0:
+        print('aaaa')
     # Retornar media dos ROIs de cada individuo
     return (ROI_short + ROI_long)/2,
 

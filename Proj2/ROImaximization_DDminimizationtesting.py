@@ -63,7 +63,7 @@ INFINITY = np.inf
 GAP_ANALYZED = 8
 PERF_THRESHOLD = 1
  
-MUTPB = 0.7
+MUTPB = 0.1
 indpbMut = 0.5
 CXPB = 0.7
 CrossType = 'OnePoint'
@@ -403,23 +403,19 @@ def oa_csv(csv_name, start_date_training, end_date_training):
 def main3_4_1(start_date_training, end_date_training):
     
     result = pd.DataFrame()
-    csvs_names_to_df = csvs_names.copy()
-    csvs_names_to_df.append(None)
-    result['Stocks'] = csvs_names_to_df
+    result['Stocks'] = csvs_names
     
-    max_final = []
-    min_final = []
-    avg_final = []
-    std_final = []
+    final_maxROI_ROI = []
+    final_maxROI_DD = []
+    final_minDD_ROI = []
+    final_minDD_DD = []
     best_individuals_csvs = []
     fitness_csvs = []
     pareto_csvs = []
     
     for name in csvs_names:
-        list_max = []
-        list_min = []
-        list_avg = []
-        list_std = []
+        list_maxROI = []
+        list_minDD = []
         fitness_final = []
         best_individuals = []
         pareto_csv = []
@@ -427,31 +423,33 @@ def main3_4_1(start_date_training, end_date_training):
          
         for i in range(N_RUNS):
             random.seed(i)
-            max, min, avg, std, best_individual, fitness, pareto = oa_csv(name, start_date_training, end_date_training)
+            maxROI, minDD, best_individual, fitness, pareto = oa_csv(name, start_date_training, end_date_training)
             pareto_csv.append(pareto)
             best_individuals.append(best_individual)
-            list_max.append(max)
-            list_min.append(min)
-            list_avg.append(avg)
-            list_std.append(std)
             fitness_final.append(fitness[0])
+            list_maxROI.append(maxROI)
+            list_minDD.append(minDD)
         best_individuals_csvs.append(best_individuals)
-        max_final.append(np.max(list_max))
-        min_final.append(np.min(list_min))
-        avg_final.append(np.mean(list_avg))
-        std_final.append(np.std(fitness_final))
         fitness_csvs.append(fitness_final)
-        pareto_csvs.append(pareto_csv)        
+        pareto_csvs.append(pareto_csv)     
+        
+        fit_maxROI = max(list_maxROI, key=lambda x: x[0])
+        fit_minDD = min(list_minDD, key=lambda x: x[1])
+      
+        final_maxROI_ROI.append(fit_maxROI[0])
+        final_maxROI_DD.append(fit_maxROI[1])
+        final_minDD_ROI.append(fit_minDD[0])
+        final_minDD_DD.append(fit_minDD[1]) 
     
-    max_final.append(np.mean(max_final))
-    min_final.append(None)
-    avg_final.append(None)
-    std_final.append(None)
+    final_maxROI_ROI.append(np.mean(final_maxROI_ROI))
+    final_maxROI_DD.append(np.mean(final_maxROI_DD))
+    final_minDD_ROI.append(np.mean(final_minDD_ROI))
+    final_minDD_DD.append(np.mean(final_minDD_DD))
     
-    result['Max'] = max_final 
-    result['Min'] = min_final
-    result['Mean'] = avg_final 
-    result['STD'] = std_final 
+    result['MaxROI_ROI'] = final_maxROI_ROI
+    result['maxROI_DD'] = final_maxROI_DD
+    result['minDD_ROI'] = final_minDD_ROI
+    result['minDD_DD'] = final_minDD_DD
     
     nameee = '_PMut' + str(MUTPB) + '_indpb' + str(indpbMut) + '_Cross' + CrossType + '_PCross' + str(CXPB) + '_Sel' + SelType
     result.to_csv('ACI_Project2_2324_Data/tuning_3_4/' + 'results' + nameee + '.csv', index = None, header=True, encoding='utf-8')
