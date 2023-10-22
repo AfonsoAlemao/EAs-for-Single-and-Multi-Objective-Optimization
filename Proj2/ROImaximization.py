@@ -478,7 +478,7 @@ def main3_2(start_date_training, end_date_training):
     result['Min'] = min_final
     result['Mean'] = avg_final 
     result['STD'] = std_final 
-    result.to_csv('ACI_Project2_2324_Data/' + 'results' + '.csv', index = None, header=True, encoding='utf-8')
+    result.to_csv('ACI_Project2_2324_Data/' + 'results_3_2' + '.csv', index = None, header=True, encoding='utf-8')
     
     generate_histograms(best_individuals_csvs)
     generate_boxplots(fitness_csvs)
