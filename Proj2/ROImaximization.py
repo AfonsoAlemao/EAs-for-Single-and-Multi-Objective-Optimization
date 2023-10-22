@@ -18,13 +18,12 @@
 #    each of which can be 0 or 1
 
 import random
+import math
 
 from deap import base
 from deap import creator
 from deap import tools
-from datetime import timedelta
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
 
 
 import pandas as pd
@@ -191,9 +190,27 @@ def evalROI(individual, csv_name, start_date, end_date):
 toolbox.register("evaluate", evalROI)
 
 # register the crossover operator
-toolbox.register("mate", tools.	cxOnePoint)
+toolbox.register("mate", tools.cxOnePoint)
 # toolbox.register("mate", tools.cxTwoPoint)
-# toolbox.register("mate", tools.cxUniform)
+# toolbox.register("mate", tools.cxUniform, indpb = 0.5)
+def blending(individual1, individual2):
+    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
+    new_individual1 = individual1.copy()
+    new_individual2 = individual2.copy()
+    new_individual = individual1.copy() 
+    for i in range(len(new_individual)):
+        if i >= 2:
+            factor = 5
+            new_individual[i] = (new_individual1[i] + new_individual2[i])/(2*factor)
+            random_num = random.randint(0,1)
+            if random_num == 0:
+                new_individual[i] = math.floor(new_individual[i]) * factor
+            else:
+                new_individual[i] = math.ceil(new_individual[i]) * factor
+
+    return new_individual   
+
+# toolbox.register("mate", blending)
 
 # register a mutation operator with a probability to
 # flip each attribute/gene of 0.5
@@ -219,8 +236,16 @@ toolbox.register('mutate', mutCustom, indpb = 0.5)
 # generation: each individual of the current generation
 # is replaced by the 'fittest' (best) of three individuals
 # drawn randomly from the current generation.
-# toolbox.register("select", tools.selRoulette)
 toolbox.register("select", tools.selTournament, tournsize=2)
+# toolbox.register("select", tools.selTournament, tournsize=3)
+# toolbox.register("select", tools.selTournament, tournsize=4)
+# toolbox.register("select", tools.selTournament, tournsize=8)
+# toolbox.register("select", tools.selRoulette)
+# toolbox.register("select", tools.selRandom)
+# toolbox.register("select", selBest)
+# toolbox.register("select", selStochasticUniversalSampling)
+# toolbox.register("select", selLexicase)
+
 
 #----------
 
@@ -360,7 +385,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of RSI_long')
     plt.xlim([3.5, 24.5])
     plt.xticks(array_days) 
-    plt.savefig('RSI_long.png')
+    plt.savefig('3_2_hist_boxplot/RSI_long.png')
     
     # print('HIST, RSI_short', np.array(best_individuals_copy)[:, 1])
     plt.figure(1)
@@ -372,7 +397,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of RSI_short')
     plt.xlim([3.5, 24.5])
     plt.xticks(array_days)
-    plt.savefig('RSI_short.png')
+    plt.savefig('3_2_hist_boxplot/RSI_short.png')
     
     # print('HIST, LB_LP', np.array(best_individuals_copy)[:, 2])
     plt.figure(2)
@@ -384,7 +409,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of LB_LP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
-    plt.savefig('LB_LP.png')
+    plt.savefig('3_2_hist_boxplot/LB_LP.png')
     
     # print('HIST, UP_LP', np.array(best_individuals_copy)[:, 3])
     plt.figure(3)
@@ -396,7 +421,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of UP_LP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
-    plt.savefig('UP_LP.png')
+    plt.savefig('3_2_hist_boxplot/UP_LP.png')
     
     # print('HIST, LB_SP', np.array(best_individuals_copy)[:, 4])
     plt.figure(4)
@@ -408,7 +433,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of LB_SP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
-    plt.savefig('LB_SP.png')
+    plt.savefig('3_2_hist_boxplot/LB_SP.png')
     
     # print('HIST, UP_SP', np.array(best_individuals_copy)[:, 5])
     plt.figure(5)
@@ -420,7 +445,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of UP_SP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
-    plt.savefig('UP_SP.png')
+    plt.savefig('3_2_hist_boxplot/UP_SP.png')
     
 def generate_boxplots(fitness_csvs):
     
@@ -434,7 +459,7 @@ def generate_boxplots(fitness_csvs):
     plt.xlabel('Stocks')
     plt.ylabel('Normalized ROI')
     plt.title('Normalized ROI Boxplot')
-    plt.savefig('normalized_boxplot.png')
+    plt.savefig('3_2_hist_boxplot/normalized_boxplot.png')
     return
 
 def main3_2(start_date_training, end_date_training):
@@ -556,8 +581,8 @@ import time
 if __name__ == "__main__":
     start_time = time.time()
     
-    main3_2('2020-01-01', '2022-12-31')
-    # main3_3('2011-01-01', '2019-12-31')
+    # main3_2('2020-01-01', '2022-12-31')
+    main3_3('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))

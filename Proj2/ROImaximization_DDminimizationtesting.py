@@ -18,12 +18,12 @@
 #    each of which can be 0 or 1
 
 import random
+import math
 
 from deap import base
 from deap import creator
 from deap import tools
 import matplotlib.pyplot as plt
-import math
 
 
 import pandas as pd
@@ -62,15 +62,15 @@ N_RUNS = 5
 INFINITY = np.inf
 GAP_ANALYZED = 8
 PERF_THRESHOLD = 1
-
+ 
 MUTPB = 0.7
 indpbMut = 0.5
 CXPB = 0.9
 CrossType = 'OnePoint'
-SelType = 'Torn2'
+SelType = 'NSGA2_' + 'TornDCD'
  
-creator.create("FitnessMax", base.Fitness, weights=(1.0,))
-creator.create("Individual", list, fitness=creator.FitnessMax)
+creator.create("FitnessMaxMin", base.Fitness, weights=(1.0, -1.0))
+creator.create("Individual", list, fitness=creator.FitnessMaxMin)
 
 
 toolbox = base.Toolbox()
@@ -130,7 +130,7 @@ toolbox.register("individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # the goal ('fitness') function to be maximized
-def evalROI(individual, csv_name, start_date, end_date):
+def evalROI_DD(individual, csv_name, start_date, end_date):
     RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     # print(individual)
     # Para cada csv calcular ROI (2020-2022)
@@ -166,34 +166,52 @@ def evalROI(individual, csv_name, start_date, end_date):
         col_RSI_short = 'RSI_14days'
     else:
         col_RSI_short = 'RSI_21days'
+        
+    minLong = INFINITY
+    maxShort = -INFINITY
+    
+    DD = 0 # Drawdown
 
     for index, row in csv_2020_22.iterrows():
 
         if(row[col_RSI_long] <= LB_LP and begin_LP == -1):
             begin_LP = row['Close']
+            minLong = begin_LP
         if(row[col_RSI_short] >= UP_SP and begin_SP == -1):
             begin_SP = row['Close']
+            maxShort = begin_SP
+        
+        if(begin_LP !=-1 and row['Close'] < minLong):
+            minLong = row['Close']
+            
+        if(begin_SP !=-1 and row['Close'] > maxShort):
+            maxShort = row['Close']
+            
         
         if(row[col_RSI_long] >= UP_LP and begin_LP != -1):
             end_LP = row['Close']
             ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
+            DD += (begin_LP - minLong) / begin_LP
+            minLong = INFINITY
             begin_LP = -1
             end_LP = -1
         
         if(row[col_RSI_short] <= LB_SP and begin_SP != -1):
             end_SP = row['Close']
             ROI_short += ((begin_SP - end_SP)/begin_SP) * 100
+            DD += (maxShort - begin_SP) / begin_SP
+            maxShort = -INFINITY
             begin_SP = -1
             end_SP = -1
         
     # Retornar media dos ROIs de cada individuo
-    return (ROI_short + ROI_long)/2,
+    return (ROI_short + ROI_long)/2, DD
 
 #----------
 # Operator registration
 #----------
 # register the goal / fitness function
-toolbox.register("evaluate", evalROI)
+toolbox.register("evaluate", evalROI_DD)
 
 # register the crossover operator
 toolbox.register("mate", tools.cxOnePoint)
@@ -235,35 +253,33 @@ def mutCustom(individual, indpb):
 
     return new_individual   
 
-toolbox.register('mutate', mutCustom, indpb = 0.5) 
-
+toolbox.register('mutate', mutCustom, indpb = indpbMut) 
 
 # operator for selecting individuals for breeding the next
 # generation: each individual of the current generation
 # is replaced by the 'fittest' (best) of three individuals
 # drawn randomly from the current generation.
-toolbox.register("select", tools.selTournament, tournsize=2)
-# toolbox.register("select", tools.selTournament, tournsize=3)
-# toolbox.register("select", tools.selTournament, tournsize=4)
-# toolbox.register("select", tools.selTournament, tournsize=8)
-# toolbox.register("select", tools.selRoulette)
-# toolbox.register("select", tools.selRandom)
-# toolbox.register("select", selBest)
-# toolbox.register("select", selStochasticUniversalSampling)
-# toolbox.register("select", selLexicase)
+toolbox.register("select", tools.selNSGA2)
 
 #----------
-
 
 def oa_csv(csv_name, start_date_training, end_date_training):
     # create an initial population of 300 individuals (where
     # each individual is a list of integers)
+    
+    pareto = tools.ParetoFront()
+    
     pop = toolbox.population(n=INITIAL_POPULATION) #menor que 144
-
+    
+    pop = toolbox.select(pop, len(pop))
+    
+    
+    
     # CXPB  is the probability with which two individuals
     #       are crossed
     #
     # MUTPB is the probability for mutating an individual
+    # CXPB, MUTPB = 0.5, 0.5
     
     print("Start of evolution")
     
@@ -279,7 +295,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
 
     # Extracting all the fitnesses of 
     fits = [ind.fitness.values[0] for ind in pop]
-
+    
+    pareto.update(pop)
     # Variable keeping track of the number of generations
     g = 0
     
@@ -299,11 +316,18 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             print("-- Generation %i --" % g)
         
         # Select the next generation individuals
-        offspring = toolbox.select(pop, len(pop))
-        # print(len(offspring))
-        # Clone the selected individuals
-        offspring = list(map(toolbox.clone, offspring))
+        offspring = tools.selTournamentDCD(pop, len(pop))
+        # offspring = tools.selTournament(pop, len(pop), tournsize=2)
+        # offspring = tools.selTournament(pop, len(pop), tournsize=3)
+        # offspring = tools.selTournament(pop, len(pop), tournsize=4)
+        # offspring = tools.selTournament(pop, len(pop), tournsize=8)
+        # offspring = tools.selRoulette(pop, len(pop))
+        # offspring = tools.selRandom(pop, len(pop))
+        # offspring = tools.selBest(pop, len(pop))
+        # offspring = tools.selStochasticUniversalSampling(pop, len(pop))
+        # offspring = tools.selLexicase(pop, len(pop))
         
+        offspring = [toolbox.clone(ind) for ind in offspring]
         
         # Apply crossover and mutation on the offspring
         for child1, child2 in zip(offspring[::2], offspring[1::2]):
@@ -335,12 +359,16 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # print("  Evaluated %i individuals" % len(invalid_ind))
         
         # The population is entirely replaced by the offspring
+        
         pop = toolbox.select(pop + offspring, INITIAL_POPULATION)
-                
-        hof.update(pop)
+        
+        
         
         # Gather all the fitnesses in one list and print the stats
         fits = [ind.fitness.values[0] for ind in pop]
+        
+        pareto.update(pop)
+        hof.update(pop)
         
         length = len(pop)
         mean = sum(fits) / length
@@ -369,10 +397,10 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     print('Obtained at generation ', g)
     print('Succesive generations maximums ', max_by_generations)
     
-    return max(fits), min(fits), mean, std, best_ind, best_ind.fitness.values
+    return max(fits), min(fits), mean, std, best_ind, best_ind.fitness.values, pareto
+        
 
-
-def main3_2(start_date_training, end_date_training):
+def main3_4_1(start_date_training, end_date_training):
     
     result = pd.DataFrame()
     csvs_names_to_df = csvs_names.copy()
@@ -385,6 +413,7 @@ def main3_2(start_date_training, end_date_training):
     std_final = []
     best_individuals_csvs = []
     fitness_csvs = []
+    pareto_csvs = []
     
     for name in csvs_names:
         list_max = []
@@ -393,11 +422,13 @@ def main3_2(start_date_training, end_date_training):
         list_std = []
         fitness_final = []
         best_individuals = []
+        pareto_csv = []
         print(name)
          
         for i in range(N_RUNS):
             random.seed(i)
-            max, min, avg, std, best_individual, fitness = oa_csv(name, start_date_training, end_date_training)
+            max, min, avg, std, best_individual, fitness, pareto = oa_csv(name, start_date_training, end_date_training)
+            pareto_csv.append(pareto)
             best_individuals.append(best_individual)
             list_max.append(max)
             list_min.append(min)
@@ -409,7 +440,8 @@ def main3_2(start_date_training, end_date_training):
         min_final.append(np.min(list_min))
         avg_final.append(np.mean(list_avg))
         std_final.append(np.std(fitness_final))
-        fitness_csvs.append(fitness_final)        
+        fitness_csvs.append(fitness_final)
+        pareto_csvs.append(pareto_csv)        
     
     max_final.append(np.mean(max_final))
     min_final.append(None)
@@ -422,84 +454,84 @@ def main3_2(start_date_training, end_date_training):
     result['STD'] = std_final 
     
     nameee = '_PMut' + str(MUTPB) + '_indpb' + str(indpbMut) + '_Cross' + CrossType + '_PCross' + str(CXPB) + '_Sel' + SelType
-    result.to_csv('ACI_Project2_2324_Data/tuning_3_2/' + 'results' + nameee + '.csv', index = None, header=True, encoding='utf-8')
-
+    result.to_csv('ACI_Project2_2324_Data/tuning_3_4/' + 'results' + nameee + '.csv', index = None, header=True, encoding='utf-8')
     
-# def main3_3(start_date_training, end_date_training):
-    
-#     train_result = pd.DataFrame()
-#     train_result['Stocks'] = csvs_names
-    
-#     test_result = pd.DataFrame()
-#     test_result['Stocks'] = csvs_names
-    
-#     test_max_final = []
-#     test_min_final = []
-#     test_avg_final = []
-#     test_std_final = []
-    
-#     train_max_final = []
-#     train_min_final = []
-#     train_avg_final = []
-#     train_std_final = []
-    
-#     best_individuals_csvs = []
-#     fitness_csvs = []
-#     eval_csvs = []
-    
-#     for name in csvs_names:
         
-#         list_max = []
-#         list_min = []
-#         list_avg = []
-#         list_std = []
-#         fitness_final = []
-#         best_individuals = []
-#         eval_csv = []
-#         for i in range(N_RUNS):
-#             random.seed(i)
-#             max, min, avg, std, best_individual, fitness = oa_csv(name, start_date_training, end_date_training)
-#             best_individuals.append(best_individual)
-#             list_max.append(max)
-#             list_min.append(min)
-#             list_avg.append(avg)
-#             list_std.append(std)
-#             fitness_final.append(fitness[0])
-#             eval_csv.append(evalROI(best_individual, name, '2020-01-01', '2022-12-31')) #training
-#         best_individuals_csvs.append(best_individuals)
-        
-#         eval_csvs.append(eval_csv)
-        
-#         train_max_final.append(np.max(list_max))
-#         train_min_final.append(np.min(list_min))
-#         train_avg_final.append(np.mean(list_avg))
-#         train_std_final.append(np.std(fitness_final))
-#         fitness_csvs.append(fitness_final)  
-        
-#         test_max_final.append(np.max(eval_csv))
-#         test_min_final.append(np.min(eval_csv))
-#         test_avg_final.append(np.mean(eval_csv))
-#         test_std_final.append(np.std(eval_csv))      
+def main3_4_2(start_date_training, end_date_training):
     
-#     train_result['Max'] = train_max_final 
-#     train_result['Min'] = train_min_final
-#     train_result['Mean'] = train_avg_final 
-#     train_result['STD'] = train_std_final 
-#     train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
+    train_result = pd.DataFrame()
+    train_result['Stocks'] = csvs_names
     
-#     test_result['Max'] = test_max_final 
-#     test_result['Min'] = test_min_final
-#     test_result['Mean'] = test_avg_final 
-#     test_result['STD'] = test_std_final 
-#     test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_3' + '.csv', index = None, header=True, encoding='utf-8')
+    test_result = pd.DataFrame()
+    test_result['Stocks'] = csvs_names
+    
+    test_max_final = []
+    test_min_final = []
+    test_avg_final = []
+    test_std_final = []
+    
+    train_max_final = []
+    train_min_final = []
+    train_avg_final = []
+    train_std_final = []
+    
+    best_individuals_csvs = []
+    fitness_csvs = []
+    eval_csvs = []
+    
+    for name in csvs_names:
+        
+        list_max = []
+        list_min = []
+        list_avg = []
+        list_std = []
+        fitness_final = []
+        best_individuals = []
+        eval_csv = []
+        for i in range(N_RUNS):
+            random.seed(i)
+            max, min, avg, std, best_individual, fitness, _ = oa_csv(name, start_date_training, end_date_training)
+            best_individuals.append(best_individual)
+            list_max.append(max)
+            list_min.append(min)
+            list_avg.append(avg)
+            list_std.append(std)
+            fitness_final.append(fitness[0])
+            eval_csv.append(evalROI_DD(best_individual, name, '2020-01-01', '2022-12-31')) #training
+        best_individuals_csvs.append(best_individuals)
+        
+        eval_csvs.append(eval_csv)
+        
+        train_max_final.append(np.max(list_max))
+        train_min_final.append(np.min(list_min))
+        train_avg_final.append(np.mean(list_avg))
+        train_std_final.append(np.std(fitness_final))
+        fitness_csvs.append(fitness_final)  
+        
+        test_max_final.append(np.max(eval_csv))
+        test_min_final.append(np.min(eval_csv))
+        test_avg_final.append(np.mean(eval_csv))
+        test_std_final.append(np.std(eval_csv))      
+    
+    train_result['Max'] = train_max_final 
+    train_result['Min'] = train_min_final
+    train_result['Mean'] = train_avg_final 
+    train_result['STD'] = train_std_final 
+    train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
+    
+    test_result['Max'] = test_max_final 
+    test_result['Min'] = test_min_final
+    test_result['Mean'] = test_avg_final 
+    test_result['STD'] = test_std_final 
+    test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
 
 import time
 
 if __name__ == "__main__":
     start_time = time.time()
     
-    main3_2('2020-01-01', '2022-12-31')
-    # main3_3('2011-01-01', '2019-12-31')
+    main3_4_1('2020-01-01', '2022-12-31')
+    # main3_4_2('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))

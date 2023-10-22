@@ -18,13 +18,12 @@
 #    each of which can be 0 or 1
 
 import random
+import math
 
 from deap import base
 from deap import creator
 from deap import tools
-from datetime import timedelta
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
 
 
 import pandas as pd
@@ -57,9 +56,9 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 10
-INITIAL_POPULATION = 4
-N_RUNS = 2
+GENERATIONS = 156
+INITIAL_POPULATION = 64
+N_RUNS = 30
 INFINITY = np.inf
 GAP_ANALYZED = 50
 PERF_THRESHOLD = 1
@@ -209,27 +208,30 @@ def evalROI_DD(individual, csv_name, start_date, end_date):
 toolbox.register("evaluate", evalROI_DD)
 
 # register the crossover operator
-#tested
+toolbox.register("mate", tools.cxOnePoint)
 # toolbox.register("mate", tools.cxTwoPoint)
-toolbox.register("mate", tools.	cxOnePoint)
-# toolbox.register("mate", tools.	cxPartialyMatched)
+# toolbox.register("mate", tools.cxUniform, indpb = 0.5)
+def blending(individual1, individual2):
+    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
+    new_individual1 = individual1.copy()
+    new_individual2 = individual2.copy()
+    new_individual = individual1.copy() 
+    for i in range(len(new_individual)):
+        if i >= 2:
+            factor = 5
+            new_individual[i] = (new_individual1[i] + new_individual2[i])/(2*factor)
+            random_num = random.randint(0,1)
+            if random_num == 0:
+                new_individual[i] = math.floor(new_individual[i]) * factor
+            else:
+                new_individual[i] = math.ceil(new_individual[i]) * factor
 
-# not tested
-# toolbox.register("mate", tools.cxUniform)
-# toolbox.register("mate", tools.	cxOrdered)
-# toolbox.register("mate", tools.cxBlend)
-# toolbox.register("mate", tools.cxESBlend)
-# toolbox.register("mate", tools.cxESTwoPoint)
-# toolbox.register("mate", tools.	cxSimulatedBinary)
-# toolbox.register("mate", tools.cxSimulatedBinaryBounded)
-# toolbox.register("mate", tools.	cxMessyOnePoint)
+    return new_individual   
+
+# toolbox.register("mate", blending)
 
 # register a mutation operator with a probability to
-# flip each attribute/gene of 0.05
-# tested
-# toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
-# toolbox.register("mutate", tools.mutGaussian,mu=0,sigma=0.05, indpb=0.05)
-# toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.05)
+# flip each attribute/gene of 0.5
 def mutCustom(individual, indpb):
     # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     new_individual = individual.copy()
@@ -247,17 +249,10 @@ def mutCustom(individual, indpb):
 
 toolbox.register('mutate', mutCustom, indpb = 0.5) 
 
-# not tested
-# toolbox.register("mutate", tools.mutPolynomialBounded, indpb=0.05)
-# toolbox.register("mutate", tools.mutUniformInt, indpb=0.05)
-# toolbox.register("mutate", tools.mutESLogNormal, indpb=0.05)
-
 # operator for selecting individuals for breeding the next
 # generation: each individual of the current generation
 # is replaced by the 'fittest' (best) of three individuals
 # drawn randomly from the current generation.
-# toolbox.register("select", tools.selRoulette)
-# toolbox.register("select", tools.selTournament, tournsize=2)
 toolbox.register("select", tools.selNSGA2)
 
 #----------
@@ -315,7 +310,18 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             print("-- Generation %i --" % g)
         
         # Select the next generation individuals
+        # Select the next generation individuals
         offspring = tools.selTournamentDCD(pop, len(pop))
+        # offspring = tools.selTournament(pop, len(pop), tournsize=2)
+        # offspring = tools.selTournament(pop, len(pop), tournsize=3)
+        # offspring = tools.selTournament(pop, len(pop), tournsize=4)
+        # offspring = tools.selTournament(pop, len(pop), tournsize=8)
+        # offspring = tools.selRoulette(pop, len(pop))
+        # offspring = tools.selRandom(pop, len(pop))
+        # offspring = tools.selBest(pop, len(pop))
+        # offspring = tools.selStochasticUniversalSampling(pop, len(pop))
+        # offspring = tools.selLexicase(pop, len(pop))
+        
         offspring = [toolbox.clone(ind) for ind in offspring]
         
         # Apply crossover and mutation on the offspring
@@ -399,7 +405,7 @@ def generate_paretos(pareto_csvs):
             front = np.array([ind.fitness.values for ind in pareto_csv[j]])
             plt.scatter(front[:, 0], front[:, 1], c="r", label="Pareto Front")
             
-        plt.savefig('3_4_1_pareto_' + csvs_names[i] + '.png')
+        plt.savefig('3_4_1_pareto/3_4_1_pareto_' + csvs_names[i] + '.png')
     
         
 
