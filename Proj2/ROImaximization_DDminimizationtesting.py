@@ -322,7 +322,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     hof = tools.HallOfFame(1)
     
     improve_perf = INFINITY
-    max_by_generations = []
+    max_by_generationsROI = []
+    min_by_generationsDD = []
     
     # Begin the evolution
     while g < GENERATIONS and improve_perf > PERF_THRESHOLD: #TODO TESTAR THRESHOLD
@@ -333,6 +334,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         if (g % 10 == 0):
             print("-- Generation %i --" % g)
         
+        # Select the next generation individuals
         # Select the next generation individuals
         offspring = tools.selTournamentDCD(pop, len(pop))
         # offspring = tools.selTournament(pop, len(pop), tournsize=2)
@@ -383,18 +385,22 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         
         
         # Gather all the fitnesses in one list and print the stats
-        fits = [ind.fitness.values[0] for ind in pop]
+        fits = [ind.fitness.values for ind in pop]
         
         pareto.update(pop)
         hof.update(pop)
         
         length = len(pop)
-        mean = sum(fits) / length
-        sum2 = sum(x*x for x in fits)
-        std = abs(sum2 / length - mean**2)**0.5
         
+        # meanROI = sum(fits[0]) / length
+        # sum2ROI = sum(x*x for x in fits[0])
+        # stdROI = abs(sum2ROI / length - meanROI**2)**0.5
+        max_by_generationsROI.append(max(fits[0]))
         
-        max_by_generations.append(max(fits))
+        # meanDD = sum(fits[1]) / length
+        # sum2DD = sum(x*x for x in fits[1])
+        # stdDD = abs(sum2DD / length - meanDD**2)**0.5
+        min_by_generationsDD.append(min(fits[0]))
         
         # print("  Min %s" % min(fits))
         # print("  Max %s" % max(fits))
@@ -402,7 +408,9 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # print("  Std %s" % std)
         
         if g > GAP_ANALYZED:
-            improve_perf = max_by_generations[g - 1] - max_by_generations[g - GAP_ANALYZED - 1]  
+            improve_perf_ROI = max_by_generationsROI[g - 1] - max_by_generationsROI[g - GAP_ANALYZED - 1]  
+            improve_perf_DD = - (min_by_generationsDD[g - 1] - min_by_generationsDD[g - GAP_ANALYZED - 1])  
+            improve_perf = improve_perf_ROI + improve_perf_DD
         
         best_ind_gen = tools.selBest(pop, 1)[0]
         # print("Best individual in generation %d: %s, %s" % (g, best_ind_gen, best_ind_gen.fitness.values))
@@ -413,9 +421,12 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     best_ind = tools.selBest(pop, 1)[0]
     print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
     print('Obtained at generation ', g)
-    print('Succesive generations maximums ', max_by_generations)
+    print('Succesive generations maximums ', max_by_generationsROI)
     
-    return max(fits), min(fits), mean, std, best_ind, best_ind.fitness.values, pareto
+    fit_maxROI = max(fits, key=lambda x: x[0])
+    fit_minDD = min(fits, key=lambda x: x[1])
+    
+    return fit_maxROI, fit_minDD, best_ind, best_ind.fitness.values, pareto
         
 
 def main3_4_1(start_date_training, end_date_training):
