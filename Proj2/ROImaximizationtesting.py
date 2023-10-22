@@ -67,6 +67,7 @@ PERF_THRESHOLD = 1
 
 MUTPB = 0.7
 indpbMut = 0.5
+CXPB = 0.9
 CrossType = 'OnePoint'
 SelType = 'Torn2'
  

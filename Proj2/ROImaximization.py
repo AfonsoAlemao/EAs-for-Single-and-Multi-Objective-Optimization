@@ -191,27 +191,12 @@ def evalROI(individual, csv_name, start_date, end_date):
 toolbox.register("evaluate", evalROI)
 
 # register the crossover operator
-#tested
-# toolbox.register("mate", tools.cxTwoPoint)
 toolbox.register("mate", tools.	cxOnePoint)
-# toolbox.register("mate", tools.	cxPartialyMatched)
-
-# not tested
+# toolbox.register("mate", tools.cxTwoPoint)
 # toolbox.register("mate", tools.cxUniform)
-# toolbox.register("mate", tools.	cxOrdered)
-# toolbox.register("mate", tools.cxBlend)
-# toolbox.register("mate", tools.cxESBlend)
-# toolbox.register("mate", tools.cxESTwoPoint)
-# toolbox.register("mate", tools.	cxSimulatedBinary)
-# toolbox.register("mate", tools.cxSimulatedBinaryBounded)
-# toolbox.register("mate", tools.	cxMessyOnePoint)
 
 # register a mutation operator with a probability to
-# flip each attribute/gene of 0.05
-# tested
-# toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
-# toolbox.register("mutate", tools.mutGaussian,mu=0,sigma=0.05, indpb=0.05)
-# toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.05)
+# flip each attribute/gene of 0.5
 def mutCustom(individual, indpb):
     # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     new_individual = individual.copy()
@@ -229,10 +214,6 @@ def mutCustom(individual, indpb):
 
 toolbox.register('mutate', mutCustom, indpb = 0.5) 
 
-# not tested
-# toolbox.register("mutate", tools.mutPolynomialBounded, indpb=0.05)
-# toolbox.register("mutate", tools.mutUniformInt, indpb=0.05)
-# toolbox.register("mutate", tools.mutESLogNormal, indpb=0.05)
 
 # operator for selecting individuals for breeding the next
 # generation: each individual of the current generation
@@ -252,7 +233,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     #       are crossed
     #
     # MUTPB is the probability for mutating an individual
-    CXPB, MUTPB = 0.5, 0.5
+    CXPB, MUTPB = 0.9, 0.7
     
     print("Start of evolution")
     
