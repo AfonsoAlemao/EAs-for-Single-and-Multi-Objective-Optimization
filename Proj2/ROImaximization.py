@@ -56,9 +56,9 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 156
+GENERATIONS = 4
 INITIAL_POPULATION = 64
-N_RUNS = 30
+N_RUNS = 1
 INFINITY = np.inf
 GAP_ANALYZED = 50
 PERF_THRESHOLD = 1
@@ -229,7 +229,25 @@ def mutCustom(individual, indpb):
 
     return new_individual   
 
-toolbox.register('mutate', mutCustom, indpb = 0.5) 
+def mutCustom_2(individual, indpb):
+    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
+    new_individual = individual.copy()
+    for i in range(2,len(new_individual)):
+        if random.random() <= indpb:
+            random_feature = i
+            if random_feature == 2 or random_feature == 4:
+                candidate = new_individual[random_feature] + random.choice([-5,5]) 
+                if(candidate >= 0 and candidate <= 100  and candidate < new_individual[random_feature + 1]):
+                    new_individual[random_feature] = candidate
+            elif random_feature == 3 or random_feature == 5:
+                candidate = new_individual[random_feature] + random.choice([-5,5]) 
+                if(candidate >= 0 and candidate <= 100  and candidate > new_individual[random_feature - 1]):
+                    new_individual[random_feature] = candidate
+
+    return new_individual   
+
+# toolbox.register('mutate', mutCustom, indpb = 0.5)
+toolbox.register('mutate', mutCustom_2, indpb = 0.5) 
 
 
 # operator for selecting individuals for breeding the next
