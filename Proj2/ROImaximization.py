@@ -56,8 +56,8 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 156
-INITIAL_POPULATION = 64
+GENERATIONS = 100
+INITIAL_POPULATION = 100
 N_RUNS = 30
 INFINITY = np.inf
 GAP_ANALYZED = 50
