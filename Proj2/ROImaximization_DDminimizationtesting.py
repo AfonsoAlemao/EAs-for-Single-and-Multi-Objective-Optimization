@@ -456,82 +456,12 @@ def main3_4_1(start_date_training, end_date_training):
     nameee = '_PMut' + str(MUTPB) + '_indpb' + str(indpbMut) + '_Cross' + CrossType + '_PCross' + str(CXPB) + '_Sel' + SelType
     result.to_csv('ACI_Project2_2324_Data/tuning_3_4/' + 'results' + nameee + '.csv', index = None, header=True, encoding='utf-8')
     
-        
-def main3_4_2(start_date_training, end_date_training):
-    
-    train_result = pd.DataFrame()
-    train_result['Stocks'] = csvs_names
-    
-    test_result = pd.DataFrame()
-    test_result['Stocks'] = csvs_names
-    
-    test_max_final = []
-    test_min_final = []
-    test_avg_final = []
-    test_std_final = []
-    
-    train_max_final = []
-    train_min_final = []
-    train_avg_final = []
-    train_std_final = []
-    
-    best_individuals_csvs = []
-    fitness_csvs = []
-    eval_csvs = []
-    
-    for name in csvs_names:
-        
-        list_max = []
-        list_min = []
-        list_avg = []
-        list_std = []
-        fitness_final = []
-        best_individuals = []
-        eval_csv = []
-        for i in range(N_RUNS):
-            random.seed(i)
-            max, min, avg, std, best_individual, fitness, _ = oa_csv(name, start_date_training, end_date_training)
-            best_individuals.append(best_individual)
-            list_max.append(max)
-            list_min.append(min)
-            list_avg.append(avg)
-            list_std.append(std)
-            fitness_final.append(fitness[0])
-            eval_csv.append(evalROI_DD(best_individual, name, '2020-01-01', '2022-12-31')) #training
-        best_individuals_csvs.append(best_individuals)
-        
-        eval_csvs.append(eval_csv)
-        
-        train_max_final.append(np.max(list_max))
-        train_min_final.append(np.min(list_min))
-        train_avg_final.append(np.mean(list_avg))
-        train_std_final.append(np.std(fitness_final))
-        fitness_csvs.append(fitness_final)  
-        
-        test_max_final.append(np.max(eval_csv))
-        test_min_final.append(np.min(eval_csv))
-        test_avg_final.append(np.mean(eval_csv))
-        test_std_final.append(np.std(eval_csv))      
-    
-    train_result['Max'] = train_max_final 
-    train_result['Min'] = train_min_final
-    train_result['Mean'] = train_avg_final 
-    train_result['STD'] = train_std_final 
-    train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
-    
-    test_result['Max'] = test_max_final 
-    test_result['Min'] = test_min_final
-    test_result['Mean'] = test_avg_final 
-    test_result['STD'] = test_std_final 
-    test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
-
 import time
 
 if __name__ == "__main__":
     start_time = time.time()
     
     main3_4_1('2020-01-01', '2022-12-31')
-    # main3_4_2('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
