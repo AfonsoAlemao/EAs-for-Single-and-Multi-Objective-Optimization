@@ -291,7 +291,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     #       are crossed
     #
     # MUTPB is the probability for mutating an individual
-    CXPB, MUTPB = 0.5, 0.5
+    CXPB, MUTPB = 0.7, 0.1
     
     print("Start of evolution")
     
