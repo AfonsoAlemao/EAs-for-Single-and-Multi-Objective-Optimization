@@ -424,7 +424,9 @@ def oa_csv(csv_name, start_date_training, end_date_training):
 def main3_4_1(start_date_training, end_date_training):
     
     result = pd.DataFrame()
-    result['Stocks'] = csvs_names
+    csvs_names_to_df = csvs_names.copy()
+    csvs_names_to_df.append(None)
+    result['Stocks'] = csvs_names_to_df
     
     final_maxROI_ROI = []
     final_maxROI_DD = []
