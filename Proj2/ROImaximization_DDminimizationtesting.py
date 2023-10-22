@@ -65,7 +65,7 @@ PERF_THRESHOLD = 1
  
 MUTPB = 0.7
 indpbMut = 0.5
-CXPB = 0.9
+CXPB = 0.7
 CrossType = 'OnePoint'
 SelType = 'NSGA2_' + 'TornDCD'
  
