@@ -270,8 +270,8 @@ def mutCustom_2(individual, indpb):
 
     return new_individual   
 
-# toolbox.register('mutate', mutCustom, indpb = 0.5)
-toolbox.register('mutate', mutCustom_2, indpb = 0.5) 
+# toolbox.register('mutate', mutCustom, indpb = indpbMut)
+toolbox.register('mutate', mutCustom_2, indpb = indpbMut) 
 
 # operator for selecting individuals for breeding the next
 # generation: each individual of the current generation
