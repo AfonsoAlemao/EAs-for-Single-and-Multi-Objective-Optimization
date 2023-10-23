@@ -60,7 +60,7 @@ GENERATIONS = 100
 INITIAL_POPULATION = 100
 N_RUNS = 30
 INFINITY = np.inf
-GAP_ANALYZED = 50
+GAP_ANALYZED = 10
 PERF_THRESHOLD = 1
  
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
@@ -599,8 +599,8 @@ import time
 if __name__ == "__main__":
     start_time = time.time()
     
-    main3_2('2020-01-01', '2022-12-31')
-    # main3_3('2011-01-01', '2019-12-31')
+    # main3_2('2020-01-01', '2022-12-31')
+    main3_3('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))

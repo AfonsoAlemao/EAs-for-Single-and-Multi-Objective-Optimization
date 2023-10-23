@@ -60,7 +60,7 @@ GENERATIONS = 100
 INITIAL_POPULATION = 100
 N_RUNS = 30
 INFINITY = np.inf
-GAP_ANALYZED = 50
+GAP_ANALYZED = 10
 PERF_THRESHOLD = 1
  
 creator.create("FitnessMaxMin", base.Fitness, weights=(1.0, -1.0))
@@ -406,7 +406,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     best_ind = tools.selBest(pop, 1)[0]
     print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
     print('Obtained at generation ', g)
-    print('Succesive generations maximums ', max_by_generationsROI)
+    gen_results = [(max_by_generationsROI[i], min_by_generationsDD[i]) for i in range(len(max_by_generationsROI))]
+    print('Succesive generations', gen_results)
     
     fit_maxROI = max(fits, key=lambda x: x[0])
     fit_minDD = min(fits, key=lambda x: x[1])
