@@ -540,7 +540,7 @@ def main3_4_2(start_date_training, end_date_training):
     train_result['MaxROI_ROI'] = train_final_maxROI_ROI
     train_result['maxROI_DD'] = train_final_maxROI_DD
     train_result['minDD_ROI'] = train_final_minDD_ROI
-    train_result['STD'] = train_final_minDD_DD
+    train_result['minDD_DD'] = train_final_minDD_DD
     train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
     
     test_result['MaxROI_ROI'] = test_final_maxROI_ROI
