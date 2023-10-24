@@ -513,25 +513,18 @@ def main3_3(start_date_training, end_date_training):
     train_min_final = []
     train_avg_final = []
     train_std_final = []
-    
-    best_individuals_csvs = []
-    eval_csvs = []
-    
+        
     for name in csvs_names:
         print(name)
         list_max = []
-        best_individuals = []
         eval_csv = []
         for i in range(N_RUNS):
             random.seed(i)
             max, best_individual = oa_csv(name, start_date_training, end_date_training)
-            best_individuals.append(best_individual)
             list_max.append(max)
-            eval_csv.append(evalROI(best_individual, name, '2020-01-01', '2022-12-31')) #training
-            
-        best_individuals_csvs.append(best_individuals)
-        eval_csvs.append(eval_csv)
-        
+            # Testing
+            eval_csv.append(evalROI(best_individual, name, '2020-01-01', '2022-12-31')) 
+                    
         train_max_final.append(np.max(list_max))
         train_min_final.append(np.min(list_max))
         train_avg_final.append(np.mean(list_max))

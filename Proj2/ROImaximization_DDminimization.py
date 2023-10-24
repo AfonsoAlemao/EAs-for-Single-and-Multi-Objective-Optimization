@@ -383,21 +383,20 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             improve_perf_ROI = max_by_generationsROI[g - 1] - max_by_generationsROI[g - GAP_ANALYZED - 1]  
             improve_perf_DD = - (min_by_generationsDD[g - 1] - min_by_generationsDD[g - GAP_ANALYZED - 1])  
             improve_perf = improve_perf_ROI + improve_perf_DD
-        
-        best_ind_gen = tools.selBest(pop, 1)[0]
-        # print("Best individual in generation %d: %s, %s" % (g, best_ind_gen, best_ind_gen.fitness.values))
-        # print("Hall of fame: {} {}".format(hof[0], hof[0].fitness.values[0]))
     
     print("-- End of (successful) evolution --")
     
-    best_ind = tools.selBest(pop, 1)[0]
-    print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
+    # index_ROI, fit_maxROI = max(enumerate(fits), key=lambda x: x[0])
+    # index_DD, fit_minDD = min(enumerate(fits), key=lambda x: x[1])
+    
+    index_ROI, fit_maxROI = max(enumerate(fits), key=lambda x: x[1][0])
+    index_DD, fit_minDD = min(enumerate(fits), key=lambda x: x[1][1])
+
+    best_ind = [pop[index_ROI], pop[index_DD]]
+    print("Best individual are %s, %s and %s, %s" % (best_ind[0], best_ind[0].fitness.values, best_ind[1], best_ind[1].fitness.values))
     print('Obtained at generation ', g)
     gen_results = [(max_by_generationsROI[i], min_by_generationsDD[i]) for i in range(len(max_by_generationsROI))]
     print('Succesive generations', gen_results)
-    
-    fit_maxROI = max(fits, key=lambda x: x[0])
-    fit_minDD = min(fits, key=lambda x: x[1])
     
     return fit_maxROI, fit_minDD, best_ind, pareto
 
@@ -425,25 +424,21 @@ def main3_4_1(start_date_training, end_date_training):
     final_maxROI_DD = []
     final_minDD_ROI = []
     final_minDD_DD = []
-    best_individuals_csvs = []
     pareto_csvs = []
     
     for name in csvs_names:
         list_maxROI = []
         list_minDD = []
-        best_individuals = []
         pareto_csv = []
         print(name)
          
         for i in range(N_RUNS):
             random.seed(i)
-            maxROI, minDD, best_individual, pareto = oa_csv(name, start_date_training, end_date_training)
+            maxROI, minDD, _, pareto = oa_csv(name, start_date_training, end_date_training)
             pareto_csv.append(pareto)
-            best_individuals.append(best_individual)
             list_maxROI.append(maxROI)
             list_minDD.append(minDD)
             
-        best_individuals_csvs.append(best_individuals)
         pareto_csvs.append(pareto_csv)     
         
         fit_maxROI = max(list_maxROI, key=lambda x: x[0])
@@ -480,14 +475,10 @@ def main3_4_2(start_date_training, end_date_training):
     train_final_maxROI_DD = []
     train_final_minDD_ROI = []
     train_final_minDD_DD = []
-    
-    best_individuals_csvs = []
-    eval_csvs = []    
-    
+        
     for name in csvs_names:
         list_maxROI = []
         list_minDD = []
-        best_individuals = []
         eval_csv = []
         print(name)
         for i in range(N_RUNS):
@@ -495,12 +486,10 @@ def main3_4_2(start_date_training, end_date_training):
             maxROI, minDD, best_individual, _ = oa_csv(name, start_date_training, end_date_training)
             list_maxROI.append(maxROI)
             list_minDD.append(minDD)
-            best_individuals.append(best_individual)
-            eval_csv.append(evalROI_DD(best_individual, name, '2020-01-01', '2022-12-31')) #training
-        
-        best_individuals_csvs.append(best_individuals)
-        eval_csvs.append(eval_csv)
-        
+            # Testing
+            eval_csv.append(evalROI_DD(best_individual[0], name, '2020-01-01', '2022-12-31')) 
+            eval_csv.append(evalROI_DD(best_individual[1], name, '2020-01-01', '2022-12-31')) 
+                
         train_fit_maxROI = max(list_maxROI, key=lambda x: x[0])
         train_fit_minDD = min(list_minDD, key=lambda x: x[1])
         
@@ -535,7 +524,7 @@ if __name__ == "__main__":
     start_time = time.time()
     
     main3_4_1('2020-01-01', '2022-12-31')
-    main3_4_2('2011-01-01', '2019-12-31')
+    # main3_4_2('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
