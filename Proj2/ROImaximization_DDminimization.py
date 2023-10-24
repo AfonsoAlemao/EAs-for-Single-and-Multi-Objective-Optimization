@@ -386,9 +386,6 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     print("-- End of (successful) evolution --")
     
-    # index_ROI, fit_maxROI = max(enumerate(fits), key=lambda x: x[0])
-    # index_DD, fit_minDD = min(enumerate(fits), key=lambda x: x[1])
-    
     index_ROI, fit_maxROI = max(enumerate(fits), key=lambda x: x[1][0])
     index_DD, fit_minDD = min(enumerate(fits), key=lambda x: x[1][1])
 
@@ -413,8 +410,7 @@ def generate_paretos(pareto_csvs):
             
         plt.savefig('3_4_1_pareto/3_4_1_pareto_' + csvs_names[i] + '.png')
     
-        
-
+    
 def main3_4_1(start_date_training, end_date_training):
     
     result = pd.DataFrame()
