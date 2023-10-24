@@ -126,17 +126,11 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 # the goal ('fitness') function to be maximized
 def evalROI_DD(individual, csv_name, start_date, end_date):
     RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
-    # print(individual)
-    # Para cada csv calcular ROI (2020-2022)
-    # cortar df para periodo 20-22
-    # start_date = '2020-01-01'
-    # end_date = '2022-12-31'
     
     csv = csvs[csvs_names.index(csv_name)]
     
     ROI_short = 0
     ROI_long = 0
-    
     
     csv_2020_22 = csv[(csv['Date'] >= start_date) & (csv['Date'] <= end_date)].reset_index(drop=True)
 
@@ -144,8 +138,6 @@ def evalROI_DD(individual, csv_name, start_date, end_date):
     end_LP = -1 # valor de venda de ações
     begin_SP = -1
     end_SP = -1
-    
-    
     
     if RSI_long == 7:
         col_RSI_long = 'RSI_7days'
@@ -387,11 +379,6 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         max_by_generationsROI.append(max(fits, key=lambda x: x[0])[0])
         min_by_generationsDD.append(min(fits, key=lambda x: x[1])[1])
         
-        # print("  Min %s" % min(fits))
-        # print("  Max %s" % max(fits))
-        # print("  Avg %s" % mean)
-        # print("  Std %s" % std)
-        
         if g > GAP_ANALYZED:
             improve_perf_ROI = max_by_generationsROI[g - 1] - max_by_generationsROI[g - GAP_ANALYZED - 1]  
             improve_perf_DD = - (min_by_generationsDD[g - 1] - min_by_generationsDD[g - GAP_ANALYZED - 1])  
@@ -412,7 +399,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     fit_maxROI = max(fits, key=lambda x: x[0])
     fit_minDD = min(fits, key=lambda x: x[1])
     
-    return fit_maxROI, fit_minDD, best_ind, best_ind.fitness.values, pareto
+    return fit_maxROI, fit_minDD, best_ind, pareto
 
 def generate_paretos(pareto_csvs):
     # Plot current population and Pareto front
@@ -439,27 +426,24 @@ def main3_4_1(start_date_training, end_date_training):
     final_minDD_ROI = []
     final_minDD_DD = []
     best_individuals_csvs = []
-    fitness_csvs = []
     pareto_csvs = []
     
     for name in csvs_names:
         list_maxROI = []
         list_minDD = []
-        fitness_final = []
         best_individuals = []
         pareto_csv = []
         print(name)
          
         for i in range(N_RUNS):
             random.seed(i)
-            maxROI, minDD, best_individual, fitness, pareto = oa_csv(name, start_date_training, end_date_training)
+            maxROI, minDD, best_individual, pareto = oa_csv(name, start_date_training, end_date_training)
             pareto_csv.append(pareto)
             best_individuals.append(best_individual)
-            fitness_final.append(fitness[0])
             list_maxROI.append(maxROI)
             list_minDD.append(minDD)
+            
         best_individuals_csvs.append(best_individuals)
-        fitness_csvs.append(fitness_final)
         pareto_csvs.append(pareto_csv)     
         
         fit_maxROI = max(list_maxROI, key=lambda x: x[0])
@@ -475,7 +459,7 @@ def main3_4_1(start_date_training, end_date_training):
     result['minDD_ROI'] = final_minDD_ROI
     result['minDD_DD'] = final_minDD_DD
     
-    result.to_csv('ACI_Project2_2324_Data/' + 'results_3_4_1' + '.csv', index = None, header=True, encoding='utf-8')
+    result.to_csv('ACI_Project2_2324_Data/results/' + 'results_3_4_1' + '.csv', index = None, header=True, encoding='utf-8')
     
     generate_paretos(pareto_csvs)
 
@@ -498,27 +482,23 @@ def main3_4_2(start_date_training, end_date_training):
     train_final_minDD_DD = []
     
     best_individuals_csvs = []
-    fitness_csvs = []
     eval_csvs = []    
     
     for name in csvs_names:
         list_maxROI = []
         list_minDD = []
-        fitness_final = []
         best_individuals = []
         eval_csv = []
         print(name)
         for i in range(N_RUNS):
             random.seed(i)
-            maxROI, minDD, best_individual, fitness, pareto = oa_csv(name, start_date_training, end_date_training)
+            maxROI, minDD, best_individual, _ = oa_csv(name, start_date_training, end_date_training)
             list_maxROI.append(maxROI)
             list_minDD.append(minDD)
-            fitness_final.append(fitness[0])
             best_individuals.append(best_individual)
             eval_csv.append(evalROI_DD(best_individual, name, '2020-01-01', '2022-12-31')) #training
         
         best_individuals_csvs.append(best_individuals)
-        fitness_csvs.append(fitness_final)        
         eval_csvs.append(eval_csv)
         
         train_fit_maxROI = max(list_maxROI, key=lambda x: x[0])
@@ -541,20 +521,20 @@ def main3_4_2(start_date_training, end_date_training):
     train_result['maxROI_DD'] = train_final_maxROI_DD
     train_result['minDD_ROI'] = train_final_minDD_ROI
     train_result['minDD_DD'] = train_final_minDD_DD
-    train_result.to_csv('ACI_Project2_2324_Data/' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
+    train_result.to_csv('ACI_Project2_2324_Data/results/' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
     
     test_result['MaxROI_ROI'] = test_final_maxROI_ROI
     test_result['maxROI_DD'] = test_final_maxROI_DD
     test_result['minDD_ROI'] = test_final_minDD_ROI
     test_result['minDD_DD'] = test_final_minDD_DD
-    test_result.to_csv('ACI_Project2_2324_Data/' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
+    test_result.to_csv('ACI_Project2_2324_Data/results/' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
 
 import time
 
 if __name__ == "__main__":
     start_time = time.time()
     
-    # main3_4_1('2020-01-01', '2022-12-31')
+    main3_4_1('2020-01-01', '2022-12-31')
     main3_4_2('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
