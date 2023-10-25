@@ -386,10 +386,11 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     print("-- End of (successful) evolution --")
     
-    index_ROI, fit_maxROI = max(enumerate(fits), key=lambda x: x[1][0])
-    index_DD, fit_minDD = min(enumerate(fits), key=lambda x: x[1][1])
+    index_ROI, fit_maxROI = max(enumerate(fits), key=lambda x: (x[1][0], -x[1][1]))
+    index_DD, fit_minDD = min(enumerate(fits), key=lambda x: (x[1][1], -x[1][0]))
 
     best_ind = [pop[index_ROI], pop[index_DD]]
+    
     print("Best individual are %s, %s and %s, %s" % (best_ind[0], best_ind[0].fitness.values, best_ind[1], best_ind[1].fitness.values))
     print('Obtained at generation ', g)
     gen_results = [(max_by_generationsROI[i], min_by_generationsDD[i]) for i in range(len(max_by_generationsROI))]
