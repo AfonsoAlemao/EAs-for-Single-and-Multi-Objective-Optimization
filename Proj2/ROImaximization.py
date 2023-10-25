@@ -552,8 +552,8 @@ import time
 if __name__ == "__main__":
     start_time = time.time()
     
-    main3_2('2020-01-01', '2022-12-31')
-    # main3_3('2011-01-01', '2019-12-31')
+    # main3_2('2020-01-01', '2022-12-31')
+    main3_3('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
