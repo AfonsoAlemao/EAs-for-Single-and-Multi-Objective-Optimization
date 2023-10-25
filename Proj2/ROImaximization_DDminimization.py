@@ -56,8 +56,8 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
-GENERATIONS = 100
-INITIAL_POPULATION = 100
+GENERATIONS = 160
+INITIAL_POPULATION = 64
 N_RUNS = 30
 INFINITY = np.inf
 GAP_ANALYZED = 10
@@ -451,7 +451,7 @@ def main3_4_1(start_date_training, end_date_training):
     result['minDD_ROI'] = final_minDD_ROI
     result['minDD_DD'] = final_minDD_DD
     
-    result.to_csv('ACI_Project2_2324_Data/results/' + 'results_3_4_1' + '.csv', index = None, header=True, encoding='utf-8')
+    result.to_csv('ACI_Project2_2324_Data/results/NEW' + 'results_3_4_1' + '.csv', index = None, header=True, encoding='utf-8')
     
     generate_paretos(pareto_csvs)
 
@@ -480,12 +480,12 @@ def main3_4_2(start_date_training, end_date_training):
         print(name)
         for i in range(N_RUNS):
             random.seed(i)
-            maxROI, minDD, best_individual, _ = oa_csv(name, start_date_training, end_date_training)
+            maxROI, minDD, _, pareto = oa_csv(name, start_date_training, end_date_training)
             list_maxROI.append(maxROI)
             list_minDD.append(minDD)
-            # Testing
-            eval_csv.append(evalROI_DD(best_individual[0], name, '2020-01-01', '2022-12-31')) 
-            eval_csv.append(evalROI_DD(best_individual[1], name, '2020-01-01', '2022-12-31')) 
+            
+            for ind in pareto.items:
+                eval_csv.append(evalROI_DD(ind, name, '2020-01-01', '2022-12-31')) 
                 
         train_fit_maxROI = max(list_maxROI, key=lambda x: x[0])
         train_fit_minDD = min(list_minDD, key=lambda x: x[1])
@@ -507,21 +507,21 @@ def main3_4_2(start_date_training, end_date_training):
     train_result['maxROI_DD'] = train_final_maxROI_DD
     train_result['minDD_ROI'] = train_final_minDD_ROI
     train_result['minDD_DD'] = train_final_minDD_DD
-    train_result.to_csv('ACI_Project2_2324_Data/results/' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
+    train_result.to_csv('ACI_Project2_2324_Data/results/NEW' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
     
     test_result['MaxROI_ROI'] = test_final_maxROI_ROI
     test_result['maxROI_DD'] = test_final_maxROI_DD
     test_result['minDD_ROI'] = test_final_minDD_ROI
     test_result['minDD_DD'] = test_final_minDD_DD
-    test_result.to_csv('ACI_Project2_2324_Data/results/' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
+    test_result.to_csv('ACI_Project2_2324_Data/results/NEW' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
 
 import time
 
 if __name__ == "__main__":
     start_time = time.time()
     
-    main3_4_1('2020-01-01', '2022-12-31')
-    # main3_4_2('2011-01-01', '2019-12-31')
+    # main3_4_1('2020-01-01', '2022-12-31')
+    main3_4_2('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
