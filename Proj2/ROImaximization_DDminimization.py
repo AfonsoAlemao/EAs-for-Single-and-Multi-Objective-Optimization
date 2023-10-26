@@ -439,8 +439,8 @@ def main3_4_1(start_date_training, end_date_training):
             
         pareto_csvs.append(pareto_csv)     
         
-        fit_maxROI = max(list_maxROI, key=lambda x: x[0])
-        fit_minDD = min(list_minDD, key=lambda x: x[1])
+        fit_maxROI = max(list_maxROI, key=lambda x: (x[0], -x[1]))
+        fit_minDD = min(list_minDD, key=lambda x: (x[1], -x[0]))
       
         final_maxROI_ROI.append(fit_maxROI[0])
         final_maxROI_DD.append(fit_maxROI[1])
@@ -488,8 +488,8 @@ def main3_4_2(start_date_training, end_date_training):
             for ind in pareto.items:
                 eval_csv.append(evalROI_DD(ind, name, '2020-01-01', '2022-12-31')) 
                 
-        train_fit_maxROI = max(list_maxROI, key=lambda x: x[0])
-        train_fit_minDD = min(list_minDD, key=lambda x: x[1])
+        train_fit_maxROI = max(list_maxROI, key=lambda x: (x[0], -x[1]))
+        train_fit_minDD = min(list_minDD, key=lambda x: (x[1], -x[0]))
         
         train_final_maxROI_ROI.append(train_fit_maxROI[0])
         train_final_maxROI_DD.append(train_fit_maxROI[1])
@@ -521,8 +521,8 @@ import time
 if __name__ == "__main__":
     start_time = time.time()
     
-    # main3_4_1('2020-01-01', '2022-12-31')
-    main3_4_2('2011-01-01', '2019-12-31')
+    main3_4_1('2020-01-01', '2022-12-31')
+    # main3_4_2('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
