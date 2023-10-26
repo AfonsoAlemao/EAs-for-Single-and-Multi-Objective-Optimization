@@ -1,3 +1,6 @@
+Run ComputeRSI.py
+- Calculates of the RSI for 7-day period, 14-day period, 21-day period and updates datasets
+
 Run ROImaximization.py: 
 - Executes exercise 3.2 (SOO Applied to Maximize Return on Investment (ROI) using Technical Indicators), generating:
     .ROI (Max, Min, Mean and STD) over 30 runs: ACI_Project2_2324_Data/results/results_3_2.csv
