@@ -239,7 +239,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     # MUTPB: tuned probability for mutating an individual
     CXPB, MUTPB = 0.9, 0.7
     
-    print("Start of evolution")
+    # print("Start of evolution")
     
     # Evaluate the entire population
     fitnesses = []
@@ -269,8 +269,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # A new generation
         g = g + 1
         
-        if (g % 10 == 0):
-            print("-- Generation %i --" % g)
+        # if (g % 10 == 0):
+            # print("-- Generation %i --" % g)
         
         # Select the next generation individuals
         offspring = toolbox.select(pop, len(pop))
@@ -317,13 +317,13 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         if g > GAP_ANALYZED:
             improve_perf = max_by_generations[g - 1] - max_by_generations[g - GAP_ANALYZED - 1]  
     
-    print("-- End of (successful) evolution --")
+    # print("-- End of (successful) evolution --")
     
     # Obtain best individual
     best_ind = tools.selBest(pop, 1)[0]
-    print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
-    print('Obtained at generation ', g)
-    print('Succesive generations maximums ', max_by_generations)
+    # print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
+    # print('Obtained at generation ', g)
+    # print('Succesive generations maximums ', max_by_generations)
     
     return max(fits), best_ind
 
@@ -541,7 +541,7 @@ if __name__ == "__main__":
     start_time = time.time()
     
     main3_2('2020-01-01', '2022-12-31')
-    # main3_3('2011-01-01', '2019-12-31')
+    main3_3('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
