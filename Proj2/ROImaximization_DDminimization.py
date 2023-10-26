@@ -495,8 +495,8 @@ def main3_4_2(start_date_training, end_date_training):
         train_final_minDD_ROI.append(train_fit_minDD[0])
         train_final_minDD_DD.append(train_fit_minDD[1])
         
-        test_fit_maxROI = max(eval_csv, key=lambda x: x[0])
-        test_fit_minDD = min(eval_csv, key=lambda x: x[1])
+        test_fit_maxROI = max(eval_csv, key=lambda x: (x[0], -x[1]))
+        test_fit_minDD = min(eval_csv, key=lambda x: (x[1], -x[0]))
         
         test_final_maxROI_ROI.append(test_fit_maxROI[0])
         test_final_maxROI_DD.append(test_fit_maxROI[1])
