@@ -409,6 +409,7 @@ def generate_paretos(pareto_csvs):
             front = np.array([ind.fitness.values for ind in pareto_csv[j]])
             plt.scatter(front[:, 0], front[:, 1], c="r", label="Pareto Front")
             
+        plt.grid()
         plt.savefig('3_4_1_pareto/3_4_1_pareto_' + csvs_names[i] + '.png')
     
     
@@ -451,7 +452,7 @@ def main3_4_1(start_date_training, end_date_training):
     result['minDD_ROI'] = final_minDD_ROI
     result['minDD_DD'] = final_minDD_DD
     
-    result.to_csv('ACI_Project2_2324_Data/results/NEW' + 'results_3_4_1' + '.csv', index = None, header=True, encoding='utf-8')
+    result.to_csv('ACI_Project2_2324_Data/results' + 'results_3_4_1' + '.csv', index = None, header=True, encoding='utf-8')
     
     generate_paretos(pareto_csvs)
 
@@ -507,13 +508,13 @@ def main3_4_2(start_date_training, end_date_training):
     train_result['maxROI_DD'] = train_final_maxROI_DD
     train_result['minDD_ROI'] = train_final_minDD_ROI
     train_result['minDD_DD'] = train_final_minDD_DD
-    train_result.to_csv('ACI_Project2_2324_Data/results/NEW' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
+    train_result.to_csv('ACI_Project2_2324_Data/results' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
     
     test_result['MaxROI_ROI'] = test_final_maxROI_ROI
     test_result['maxROI_DD'] = test_final_maxROI_DD
     test_result['minDD_ROI'] = test_final_minDD_ROI
     test_result['minDD_DD'] = test_final_minDD_DD
-    test_result.to_csv('ACI_Project2_2324_Data/results/NEW' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
+    test_result.to_csv('ACI_Project2_2324_Data/results' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
 
 import time
 
