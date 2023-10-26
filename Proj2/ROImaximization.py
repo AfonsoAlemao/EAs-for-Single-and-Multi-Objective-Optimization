@@ -239,7 +239,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     # MUTPB: tuned probability for mutating an individual
     CXPB, MUTPB = 0.9, 0.7
     
-    print("Start of evolution")
+    # print("Start of evolution")
     
     # Evaluate the entire population
     fitnesses = []
@@ -269,8 +269,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # A new generation
         g = g + 1
         
-        if (g % 10 == 0):
-            print("-- Generation %i --" % g)
+        # if (g % 10 == 0):
+            # print("-- Generation %i --" % g)
         
         # Select the next generation individuals
         offspring = toolbox.select(pop, len(pop))
@@ -317,13 +317,13 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         if g > GAP_ANALYZED:
             improve_perf = max_by_generations[g - 1] - max_by_generations[g - GAP_ANALYZED - 1]  
     
-    print("-- End of (successful) evolution --")
+    # print("-- End of (successful) evolution --")
     
     # Obtain best individual
     best_ind = tools.selBest(pop, 1)[0]
-    print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
-    print('Obtained at generation ', g)
-    print('Succesive generations maximums ', max_by_generations)
+    # print("Best individual is %s, %s" % (best_ind, best_ind.fitness.values))
+    # print('Obtained at generation ', g)
+    # print('Succesive generations maximums ', max_by_generations)
     
     return max(fits), best_ind
 
@@ -346,7 +346,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=7)
     plt.xlabel('RSI period to apply for long positions')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of RSI_long')
     plt.xlim([3.5, 24.5])
     plt.xticks(array_days) 
@@ -360,7 +360,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=7)
     plt.xlabel('RSI period to apply for short positions')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of RSI_short')
     plt.xlim([3.5, 24.5])
     plt.xticks(array_days)
@@ -374,7 +374,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)
     plt.xlabel('Lower band value to open a long position')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of LB_LP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
@@ -388,7 +388,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)
     plt.xlabel('Upper band value to close a long position')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of UP_LP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
@@ -402,7 +402,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)
     plt.xlabel('Lower band value to close a short position')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of LB_SP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
@@ -416,7 +416,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)  
     plt.xlabel('Upper band value to open a short position')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of UP_SP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
@@ -541,7 +541,7 @@ if __name__ == "__main__":
     start_time = time.time()
     
     main3_2('2020-01-01', '2022-12-31')
-    # main3_3('2011-01-01', '2019-12-31')
+    main3_3('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))

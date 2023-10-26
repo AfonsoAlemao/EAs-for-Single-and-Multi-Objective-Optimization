@@ -253,7 +253,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     # MUTPB: tuned probability for mutating an individual
     CXPB, MUTPB = 0.7, 0.1
     
-    print("Start of evolution")
+    # print("Start of evolution")
     
     # Evaluate the entire population
     fitnesses = []
@@ -287,8 +287,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # A new generation
         g = g + 1
         
-        if (g % 10 == 0):
-            print("-- Generation %i --" % g)
+        # if (g % 10 == 0):
+        #     print("-- Generation %i --" % g)
         
         # Select the next generation individuals
         offspring = tools.selTournamentDCD(pop, len(pop))
@@ -350,17 +350,17 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             improve_perf_DD = - (min_by_generationsDD[g - 1] - min_by_generationsDD[g - GAP_ANALYZED - 1])  
             improve_perf = improve_perf_ROI + improve_perf_DD
     
-    print("-- End of (successful) evolution --")
+    # print("-- End of (successful) evolution --")
    
     # Obtain the elements from pareto front with maximum ROI and with minimum DD
     index_ROI, fit_maxROI = max(enumerate(fits), key=lambda x: (x[1][0], -x[1][1]))
     index_DD, fit_minDD = min(enumerate(fits), key=lambda x: (x[1][1], -x[1][0]))
     best_ind = [pop[index_ROI], pop[index_DD]]
     
-    print("Best individual are %s, %s and %s, %s" % (best_ind[0], best_ind[0].fitness.values, best_ind[1], best_ind[1].fitness.values))
-    print('Obtained at generation ', g)
+    # print("Best individual are %s, %s and %s, %s" % (best_ind[0], best_ind[0].fitness.values, best_ind[1], best_ind[1].fitness.values))
+    # print('Obtained at generation ', g)
     gen_results = [(max_by_generationsROI[i], min_by_generationsDD[i]) for i in range(len(max_by_generationsROI))]
-    print('Succesive generations', gen_results)
+    # print('Succesive generations', gen_results)
     
     return fit_maxROI, fit_minDD, best_ind, pareto
 
@@ -422,7 +422,7 @@ def main3_4_1(start_date_training, end_date_training):
     result['minDD_ROI'] = final_minDD_ROI
     result['minDD_DD'] = final_minDD_DD
     
-    result.to_csv('ACI_Project2_2324_Data/results' + 'results_3_4_1' + '.csv', index = None, header=True, encoding='utf-8')
+    result.to_csv('ACI_Project2_2324_Data/results/' + 'results_3_4_1' + '.csv', index = None, header=True, encoding='utf-8')
     
     generate_paretos(pareto_csvs)
 
@@ -481,13 +481,13 @@ def main3_4_2(start_date_training, end_date_training):
     train_result['maxROI_DD'] = train_final_maxROI_DD
     train_result['minDD_ROI'] = train_final_minDD_ROI
     train_result['minDD_DD'] = train_final_minDD_DD
-    train_result.to_csv('ACI_Project2_2324_Data/results' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
+    train_result.to_csv('ACI_Project2_2324_Data/results/' + 'train_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
     
     test_result['MaxROI_ROI'] = test_final_maxROI_ROI
     test_result['maxROI_DD'] = test_final_maxROI_DD
     test_result['minDD_ROI'] = test_final_minDD_ROI
     test_result['minDD_DD'] = test_final_minDD_DD
-    test_result.to_csv('ACI_Project2_2324_Data/results' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
+    test_result.to_csv('ACI_Project2_2324_Data/results/' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
 
 if __name__ == "__main__":
     start_time = time.time()
