@@ -1,34 +1,12 @@
-#    This file is part of DEAP.
-#
-#    DEAP is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as
-#    published by the Free Software Foundation, either version 3 of
-#    the License, or (at your option) any later version.
-#
-#    DEAP is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public
-#    License along with DEAP. If not, see <http://www.gnu.org/licenses/>.
-
-
-#    example which maximizes the sum of a list of integers
-#    each of which can be 0 or 1
-
 import random
 import math
-
 from deap import base
 from deap import creator
 from deap import tools
 import matplotlib.pyplot as plt
-
-
 import pandas as pd
 import numpy as np
-
+import time
 
 AAL = pd.read_csv('ACI_Project2_2324_Data/AAL.csv', encoding='utf-8', sep=';') 
 AAPL = pd.read_csv('ACI_Project2_2324_Data/AAPL.csv', encoding='utf-8', sep=';') 
@@ -40,7 +18,6 @@ IBM = pd.read_csv('ACI_Project2_2324_Data/IBM.csv', encoding='utf-8', sep=';')
 INTC = pd.read_csv('ACI_Project2_2324_Data/INTC.csv', encoding='utf-8', sep=';') 
 NVDA = pd.read_csv('ACI_Project2_2324_Data/NVDA.csv', encoding='utf-8', sep=';') 
 XOM = pd.read_csv('ACI_Project2_2324_Data/XOM.csv', encoding='utf-8', sep=';')
-
 
 AAL['Date'] = pd.to_datetime(AAL['Date'], format='%d/%m/%Y')  
 AAPL['Date'] = pd.to_datetime(AAPL['Date'], format='%d/%m/%Y')  
@@ -56,43 +33,41 @@ XOM['Date'] = pd.to_datetime(XOM['Date'], format='%d/%m/%Y')
 csvs = [AAL, AAPL, AMZN, BAC, F, GOOG, IBM, INTC, NVDA, XOM]
 csvs_names = ['AAL', 'AAPL', 'AMZN', 'BAC', 'F', 'GOOG', 'IBM', 'INTC', 'NVDA', 'XOM']
 
+# Global Variables
 GENERATIONS = 160
 INITIAL_POPULATION = 64
 N_RUNS = 30
 INFINITY = np.inf
-GAP_ANALYZED = 10
-PERF_THRESHOLD = 1
- 
+GAP_ANALYZED = 10 # Early stopping patience between generations
+PERF_THRESHOLD = 1 # Threshold for Early stopping analysis
+
+# The goal is to maximize the ROI and minimize the DD
 creator.create("FitnessMaxMin", base.Fitness, weights=(1.0, -1.0))
 creator.create("Individual", list, fitness=creator.FitnessMaxMin)
 
-
 toolbox = base.Toolbox()
 
-
+# Generates 7, 14 or 21 days
 def get_n_days():
     r = random.randint(1, 3)
     return r * 7
 
+# Generates an integer between 0 and 100, considering num as lower/higher constraint 
 def get_multiple_five(num, low_high):
-    
     if low_high == 'low':
-        # get r < num
+        # Get 5r < num
         r = random.randint(0, num / 5 - 1)
     else:
-        # get r >= num
+        # Get 5r >= num
         r = random.randint(num / 5, 20)
-    
     return r * 5
 
-def get_multiple_five_and_get_n_days():
-    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
-    
+# Generates individual = [RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP]
+def get_multiple_five_and_get_n_days():    
     r_days_short = get_n_days()
     r_days_long = get_n_days()
     r_multiple5_high_short = get_multiple_five(5, 'high')
     r_multiple5_low_short = get_multiple_five(r_multiple5_high_short, 'low')
-    
     r_multiple5_high_long = get_multiple_five(5, 'high')
     r_multiple5_low_long = get_multiple_five(r_multiple5_high_long, 'low')
     
@@ -104,10 +79,6 @@ toolbox.register("multiple_five", get_multiple_five)
 toolbox.register("get_multiple_five_and_get_n_days", get_multiple_five_and_get_n_days)
 
 # Structure initializers
-#                         define 'individual' to be an individual
-#                         consisting of 100 'attr_bool' elements ('genes')
-# toolbox.register("individual", tools.initRepeat, creator.Individual, 
-#     toolbox.get_multiple_five_and_get_n_days, 1)  # beginLP tem de ser sempre menor que o endLP
 def generate():
     part = creator.Individual() 
     ind = get_multiple_five_and_get_n_days()
@@ -119,11 +90,11 @@ def generate():
 
 toolbox.register("individual", generate)
 
-
-# define the population to be a list of individuals
+# Define the population to be a list of individuals
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-# the goal ('fitness') function to be maximized
+# The goal ('fitness') function to be maximized is ROI
+# and the goal function to be minimized is DD
 def evalROI_DD(individual, csv_name, start_date, end_date):
     RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     
@@ -134,18 +105,18 @@ def evalROI_DD(individual, csv_name, start_date, end_date):
     
     csv_2020_22 = csv[(csv['Date'] >= start_date) & (csv['Date'] <= end_date)].reset_index(drop=True)
 
-    begin_LP = -1 # valor de compra de ações
-    end_LP = -1 # valor de venda de ações
-    begin_SP = -1
-    end_SP = -1
+    begin_LP = -1 # Share purchase value for LP
+    end_LP = -1 # Share sale value for LP
+    begin_SP = -1 # Share sale value for LP
+    end_SP = -1 # Share purchase value for SP
     
+    # Select RSI to use
     if RSI_long == 7:
         col_RSI_long = 'RSI_7days'
     elif RSI_long == 14:
         col_RSI_long = 'RSI_14days'
     else:
         col_RSI_long = 'RSI_21days'
-    
     if RSI_short == 7:
         col_RSI_short = 'RSI_7days'
     elif RSI_short == 14:
@@ -158,8 +129,8 @@ def evalROI_DD(individual, csv_name, start_date, end_date):
     
     DD = 0 # Drawdown
 
-    for index, row in csv_2020_22.iterrows():
-
+    for _, row in csv_2020_22.iterrows():
+        # Checks the feasibility of starting a LP/SP strategy
         if(row[col_RSI_long] <= LB_LP and begin_LP == -1):
             begin_LP = row['Close']
             minLong = begin_LP
@@ -167,13 +138,14 @@ def evalROI_DD(individual, csv_name, start_date, end_date):
             begin_SP = row['Close']
             maxShort = begin_SP
         
+        # Check the minimum/maximum share value during current LP/SP strategy 
+        # in order to obtain the corresponding DD
         if(begin_LP !=-1 and row['Close'] < minLong):
             minLong = row['Close']
-            
         if(begin_SP !=-1 and row['Close'] > maxShort):
             maxShort = row['Close']
             
-        
+        # Checks the feasibility of finalizing a LP/SP strategy
         if(row[col_RSI_long] >= UP_LP and begin_LP != -1):
             end_LP = row['Close']
             ROI_long += ((end_LP - begin_LP)/begin_LP) * 100
@@ -181,7 +153,6 @@ def evalROI_DD(individual, csv_name, start_date, end_date):
             minLong = INFINITY
             begin_LP = -1
             end_LP = -1
-        
         if(row[col_RSI_short] <= LB_SP and begin_SP != -1):
             end_SP = row['Close']
             ROI_short += ((begin_SP - end_SP)/begin_SP) * 100
@@ -190,21 +161,22 @@ def evalROI_DD(individual, csv_name, start_date, end_date):
             begin_SP = -1
             end_SP = -1
         
-    # Retornar media dos ROIs de cada individuo
+    # Returns global considered ROI and Drawdown
     return (ROI_short + ROI_long)/2, DD
 
-#----------
-# Operator registration
-#----------
-# register the goal / fitness function
+# Operator registration: register the goal / fitness function
 toolbox.register("evaluate", evalROI_DD)
 
-# register the crossover operator
+# Register the crossover operator
 toolbox.register("mate", tools.cxOnePoint)
+
+# Other crossover operators tested
 # toolbox.register("mate", tools.cxTwoPoint)
 # toolbox.register("mate", tools.cxUniform, indpb = 0.5)
+
+# Create blending in the features relative to bounds
+# assuring that the new individuals have feasible values
 def blending(individual1, individual2):
-    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     new_individual1 = individual1.copy()
     new_individual2 = individual2.copy()
     new_individual = individual1.copy() 
@@ -217,30 +189,15 @@ def blending(individual1, individual2):
                 new_individual[i] = math.floor(new_individual[i]) * factor
             else:
                 new_individual[i] = math.ceil(new_individual[i]) * factor
-
     return new_individual   
 
 # toolbox.register("mate", blending)
 
-# register a mutation operator with a probability to
-# flip each attribute/gene of 0.5
-def mutCustom(individual, indpb):
-    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
-    new_individual = individual.copy()
-    for i in range(len(new_individual)):
-        if random.random() <= indpb:
-            random_feature = i
-            if random_feature <= 1:
-                new_individual[random_feature] = get_n_days()
-            elif random_feature == 2 or random_feature == 4:
-                new_individual[random_feature] = get_multiple_five(new_individual[random_feature + 1], 'low')
-            elif random_feature == 3 or random_feature == 5:
-                new_individual[random_feature] = get_multiple_five(new_individual[random_feature - 1] + 5, 'high')
+# Register mutation operator:
 
-    return new_individual   
-
+# Mutates LB_LP, UB_LP, LB_SP and UB_SP features with a probability of indpb, 
+# by introducing a small variation of ±5, if possible.
 def mutCustom_2(individual, indpb):
-    # RSI_long, RSI_short, LB_LP, UP_LP, LB_SP, UP_SP = individual
     new_individual = individual.copy()
     for i in range(2,len(new_individual)):
         if random.random() <= indpb:
@@ -256,33 +213,44 @@ def mutCustom_2(individual, indpb):
 
     return new_individual   
 
-# toolbox.register('mutate', mutCustom, indpb = 0.5)
+# Other mutation operators tested
 toolbox.register('mutate', mutCustom_2, indpb = 0.5) 
 
-# operator for selecting individuals for breeding the next 
-# generation: each individual of the current generation
-# is replaced by the 'fittest' (best) of three individuals
-# drawn randomly from the current generation
+# Mutates each feature with a probability of indpb and assigns a new 
+# random value within the entire range of the feature.  
+def mutCustom(individual, indpb):
+    new_individual = individual.copy()
+    for i in range(len(new_individual)):
+        if random.random() <= indpb:
+            random_feature = i
+            if random_feature <= 1:
+                new_individual[random_feature] = get_n_days()
+            elif random_feature == 2 or random_feature == 4:
+                new_individual[random_feature] = get_multiple_five(new_individual[random_feature + 1], 'low')
+            elif random_feature == 3 or random_feature == 5:
+                new_individual[random_feature] = get_multiple_five(new_individual[random_feature - 1] + 5, 'high')
+
+    return new_individual   
+
+# toolbox.register('mutate', mutCustom, indpb = 0.5)
+
+# Operator for selecting individuals for breeding the next
+# generation
 toolbox.register("select", tools.selNSGA2)
 
-#----------
-
+# Execute the optimization algorithm for a .csv file, in a certain data range
 def oa_csv(csv_name, start_date_training, end_date_training):
-    # create an initial population of 300 individuals (where
-    # each individual is a list of integers)
-    
+    # Initialize the pareto front
     pareto = tools.ParetoFront()
     
+    # Create an initial population
     pop = toolbox.population(n=INITIAL_POPULATION) 
     
+    # Apply selection
     pop = toolbox.select(pop, len(pop))
     
-    
-    
-    # CXPB  is the probability with which two individuals
-    #       are crossed
-    #
-    # MUTPB is the probability for mutating an individual
+    # CXPB: tuned probability with which two individuals are crossed
+    # MUTPB: tuned probability for mutating an individual
     CXPB, MUTPB = 0.7, 0.1
     
     print("Start of evolution")
@@ -297,23 +265,25 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     # print("  Evaluated %i individuals" % len(pop))
 
-    # Extracting all the fitnesses of 
+    # Extracting all the fitnesses 
     fits = [ind.fitness.values[0] for ind in pop]
     
+    # Update pareto front
     pareto.update(pop)
+    
     # Variable keeping track of the number of generations
     g = 0
     
     # Initialize hall of fame     
     hof = tools.HallOfFame(1)
     
+    # Early stopping monitoring initializations
     improve_perf = INFINITY
     max_by_generationsROI = []
     min_by_generationsDD = []
     
-    # Begin the evolution
+    # Evolution with a Early stopping strategy with patience = GAP_ANALYSED, and monitor = improve_perf
     while g < GENERATIONS and improve_perf > PERF_THRESHOLD: #TODO TESTAR THRESHOLD
-        # print(len(pop))
         # A new generation
         g = g + 1
         
@@ -321,8 +291,9 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             print("-- Generation %i --" % g)
         
         # Select the next generation individuals
-        # Select the next generation individuals
         offspring = tools.selTournamentDCD(pop, len(pop))
+        
+        # Other selection methods tested
         # offspring = tools.selTournament(pop, len(pop), tournsize=2)
         # offspring = tools.selTournament(pop, len(pop), tournsize=3)
         # offspring = tools.selTournament(pop, len(pop), tournsize=4)
@@ -333,23 +304,19 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # offspring = tools.selStochasticUniversalSampling(pop, len(pop))
         # offspring = tools.selLexicase(pop, len(pop))
         
+        # Clone the selected individuals
         offspring = [toolbox.clone(ind) for ind in offspring]
         
         # Apply crossover and mutation on the offspring
         for child1, child2 in zip(offspring[::2], offspring[1::2]):
-
-            # cross two individuals with probability CXPB
+            # Cross two individuals with probability CXPB
             if random.random() < CXPB:
                 toolbox.mate(child1, child2)
-
-                # fitness values of the children
-                # must be recalculated later
+                # Fitness values of the children must be recalculated later
                 del child1.fitness.values
                 del child2.fitness.values
-
         for mutant in offspring:
-
-            # mutate an individual with probability MUTPB
+            # Mutate an individual with probability MUTPB
             if random.random() < MUTPB:
                 toolbox.mutate(mutant)
                 del mutant.fitness.values
@@ -361,34 +328,33 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             fitnesses.append(toolbox.evaluate(i, csv_name, start_date_training, end_date_training))
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
-        
         # print("  Evaluated %i individuals" % len(invalid_ind))
         
-        # The population is entirely replaced by the offspring
-        
+        # The population is entirely replaced by the pop + offspring
         pop = toolbox.select(pop + offspring, INITIAL_POPULATION)
         
-        
-        
-        # Gather all the fitnesses in one list and print the stats
+        # Gather all the fitnesses in one list
         fits = [ind.fitness.values for ind in pop]
         
+        # Update hall of fame and pareto front
         pareto.update(pop)
         hof.update(pop)
         
+        # Auxiliar lists for early stopping
         max_by_generationsROI.append(max(fits, key=lambda x: x[0])[0])
         min_by_generationsDD.append(min(fits, key=lambda x: x[1])[1])
         
+        # Computes Early stopping monitor
         if g > GAP_ANALYZED:
             improve_perf_ROI = max_by_generationsROI[g - 1] - max_by_generationsROI[g - GAP_ANALYZED - 1]  
             improve_perf_DD = - (min_by_generationsDD[g - 1] - min_by_generationsDD[g - GAP_ANALYZED - 1])  
             improve_perf = improve_perf_ROI + improve_perf_DD
     
     print("-- End of (successful) evolution --")
-    
+   
+    # Obtain the elements from pareto front with maximum ROI and with minimum DD
     index_ROI, fit_maxROI = max(enumerate(fits), key=lambda x: (x[1][0], -x[1][1]))
     index_DD, fit_minDD = min(enumerate(fits), key=lambda x: (x[1][1], -x[1][0]))
-
     best_ind = [pop[index_ROI], pop[index_DD]]
     
     print("Best individual are %s, %s and %s, %s" % (best_ind[0], best_ind[0].fitness.values, best_ind[1], best_ind[1].fitness.values))
@@ -398,8 +364,8 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     return fit_maxROI, fit_minDD, best_ind, pareto
 
+# Generates the Pareto Front graphs for each of the tests and superimpose them in a single plot
 def generate_paretos(pareto_csvs):
-    # Plot current population and Pareto front
     for i, pareto_csv in enumerate(pareto_csvs):
         plt.figure(i)
         plt.xlabel("ROI")
@@ -408,22 +374,25 @@ def generate_paretos(pareto_csvs):
         for j in range(N_RUNS):
             front = np.array([ind.fitness.values for ind in pareto_csv[j]])
             plt.scatter(front[:, 0], front[:, 1], c="r", label="Pareto Front")
-            
         plt.grid()
         plt.savefig('3_4_1_pareto/3_4_1_pareto_' + csvs_names[i] + '.png')
-    
-    
+
+# Exercise 3.4.1: MOO Applied to Maximize Return on Investment (ROI) and Minimize Drawdown using Technical
+# Indicators.
+# Apply MO OA to the complete data series values of each csv from Jan 2020 until Dec 2022
 def main3_4_1(start_date_training, end_date_training):
-    
     result = pd.DataFrame()
     result['Stocks'] = csvs_names
     
+    # Initializations
     final_maxROI_ROI = []
     final_maxROI_DD = []
     final_minDD_ROI = []
     final_minDD_DD = []
     pareto_csvs = []
     
+    # For each csv, execute N_RUNS obtaining the best individuals from each one (pareto front
+    # and the elements from the pareto front with maximum ROI and with minimum DD)
     for name in csvs_names:
         list_maxROI = []
         list_minDD = []
@@ -439,6 +408,7 @@ def main3_4_1(start_date_training, end_date_training):
             
         pareto_csvs.append(pareto_csv)     
         
+        # Get from the obtained individuals the ones with the maximum ROI and with the minimum DD
         fit_maxROI = max(list_maxROI, key=lambda x: (x[0], -x[1]))
         fit_minDD = min(list_minDD, key=lambda x: (x[1], -x[0]))
       
@@ -456,24 +426,26 @@ def main3_4_1(start_date_training, end_date_training):
     
     generate_paretos(pareto_csvs)
 
+# Exercise 3.4.2: MOO Train and Test Scheme
+# Train period from Jan 2011 until Dec 2019 and test period from Jan 2020 until Dec 2022
 def main3_4_2(start_date_training, end_date_training):
-    
     train_result = pd.DataFrame()
     train_result['Stocks'] = csvs_names
     
     test_result = pd.DataFrame()
     test_result['Stocks'] = csvs_names
     
+    # Initializations
     test_final_maxROI_ROI = []
     test_final_maxROI_DD = []
     test_final_minDD_ROI = []
     test_final_minDD_DD = []
-    
     train_final_maxROI_ROI = []
     train_final_maxROI_DD = []
     train_final_minDD_ROI = []
     train_final_minDD_DD = []
-        
+    
+    # For each csv, execute N_RUNS obtaining the best individuals from each one (the whole pareto front) and test them
     for name in csvs_names:
         list_maxROI = []
         list_minDD = []
@@ -481,10 +453,11 @@ def main3_4_2(start_date_training, end_date_training):
         print(name)
         for i in range(N_RUNS):
             random.seed(i)
+            # Training
             maxROI, minDD, _, pareto = oa_csv(name, start_date_training, end_date_training)
             list_maxROI.append(maxROI)
             list_minDD.append(minDD)
-            
+            # Testing
             for ind in pareto.items:
                 eval_csv.append(evalROI_DD(ind, name, '2020-01-01', '2022-12-31')) 
                 
@@ -516,13 +489,11 @@ def main3_4_2(start_date_training, end_date_training):
     test_result['minDD_DD'] = test_final_minDD_DD
     test_result.to_csv('ACI_Project2_2324_Data/results' + 'test_results_3_4_2' + '.csv', index = None, header=True, encoding='utf-8')
 
-import time
-
 if __name__ == "__main__":
     start_time = time.time()
     
     main3_4_1('2020-01-01', '2022-12-31')
-    # main3_4_2('2011-01-01', '2019-12-31')
+    main3_4_2('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))

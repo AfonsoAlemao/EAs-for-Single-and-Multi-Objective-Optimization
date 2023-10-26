@@ -1,3 +1,8 @@
+# Calculation of the RSI for:
+#   7-day period
+#   14-day period
+#   21-day period
+
 import pandas as pd
 import numpy as np
 
