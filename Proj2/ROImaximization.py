@@ -333,7 +333,7 @@ def generate_histograms(best_individuals):
     best_individuals_copy = [sublist for outer_list in best_individuals for sublist in outer_list]
     data = pd.DataFrame(best_individuals_copy, columns=['RSI_long', 'RSI_short', 'LB_LP', 'UP_LP', 'LB_SP', 'UP_SP'])
 
-    # TODO Normalization
+    # We normalize the histograms using percentages
 
     # Possible values
     array_days = [7, 14, 21]
@@ -343,6 +343,7 @@ def generate_histograms(best_individuals):
     plt.figure(0)
     categories = data['RSI_long'].value_counts().index
     counts = data['RSI_long'].value_counts().values
+    counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=7)
     plt.xlabel('RSI period to apply for long positions')
     plt.ylabel('Frequency')
@@ -356,6 +357,7 @@ def generate_histograms(best_individuals):
     plt.figure(1)
     categories = data['RSI_short'].value_counts().index
     counts = data['RSI_short'].value_counts().values
+    counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=7)
     plt.xlabel('RSI period to apply for short positions')
     plt.ylabel('Frequency')
@@ -369,6 +371,7 @@ def generate_histograms(best_individuals):
     plt.figure(2)
     categories = data['LB_LP'].value_counts().index
     counts = data['LB_LP'].value_counts().values
+    counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)
     plt.xlabel('Lower band value to open a long position')
     plt.ylabel('Frequency')
@@ -382,6 +385,7 @@ def generate_histograms(best_individuals):
     plt.figure(3)
     categories = data['UP_LP'].value_counts().index
     counts = data['UP_LP'].value_counts().values
+    counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)
     plt.xlabel('Upper band value to close a long position')
     plt.ylabel('Frequency')
@@ -395,6 +399,7 @@ def generate_histograms(best_individuals):
     plt.figure(4)
     categories = data['LB_SP'].value_counts().index
     counts = data['LB_SP'].value_counts().values
+    counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)
     plt.xlabel('Lower band value to close a short position')
     plt.ylabel('Frequency')
@@ -408,6 +413,7 @@ def generate_histograms(best_individuals):
     plt.figure(5)
     categories = data['UP_SP'].value_counts().index
     counts = data['UP_SP'].value_counts().values
+    counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)  
     plt.xlabel('Upper band value to open a short position')
     plt.ylabel('Frequency')
@@ -535,7 +541,7 @@ if __name__ == "__main__":
     start_time = time.time()
     
     main3_2('2020-01-01', '2022-12-31')
-    main3_3('2011-01-01', '2019-12-31')
+    # main3_3('2011-01-01', '2019-12-31')
     
     time_program = time.time() - start_time
     print("--- %s seconds ---" % (time_program))
