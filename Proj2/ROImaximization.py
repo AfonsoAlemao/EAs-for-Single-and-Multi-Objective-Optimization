@@ -425,7 +425,7 @@ def generate_histograms(best_individuals):
 
 # Generates a boxplot graph with the results obtained each of above runs
 def generate_boxplots(fitness_csvs):
-    #  Uses a max-min normalization so that the boxplot for different stocks can be compared
+    #  Uses a min-max normalization so that the boxplot for different stocks can be compared
     max = np.amax(fitness_csvs)
     min = np.amin(fitness_csvs)  
     normalized_fitness_csvs = (np.array(fitness_csvs) - min) / (max - min)            
