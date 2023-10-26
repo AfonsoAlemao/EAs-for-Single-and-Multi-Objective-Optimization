@@ -380,6 +380,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of RSI_long')
     plt.xlim([3.5, 24.5])
     plt.xticks(array_days) 
+    plt.grid()
     plt.savefig('3_2_hist_boxplot/RSI_long.png')
     
     # print('HIST, RSI_short', np.array(best_individuals_copy)[:, 1])
@@ -392,6 +393,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of RSI_short')
     plt.xlim([3.5, 24.5])
     plt.xticks(array_days)
+    plt.grid()
     plt.savefig('3_2_hist_boxplot/RSI_short.png')
     
     # print('HIST, LB_LP', np.array(best_individuals_copy)[:, 2])
@@ -404,6 +406,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of LB_LP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
+    plt.grid()
     plt.savefig('3_2_hist_boxplot/LB_LP.png')
     
     # print('HIST, UP_LP', np.array(best_individuals_copy)[:, 3])
@@ -416,6 +419,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of UP_LP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
+    plt.grid()
     plt.savefig('3_2_hist_boxplot/UP_LP.png')
     
     # print('HIST, LB_SP', np.array(best_individuals_copy)[:, 4])
@@ -428,6 +432,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of LB_SP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
+    plt.grid()
     plt.savefig('3_2_hist_boxplot/LB_SP.png')
     
     # print('HIST, UP_SP', np.array(best_individuals_copy)[:, 5])
@@ -440,6 +445,7 @@ def generate_histograms(best_individuals):
     plt.title('Histogram of UP_SP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
+    plt.grid()
     plt.savefig('3_2_hist_boxplot/UP_SP.png')
     
 def generate_boxplots(fitness_csvs):
@@ -454,6 +460,7 @@ def generate_boxplots(fitness_csvs):
     plt.xlabel('Stocks')
     plt.ylabel('Normalized ROI')
     plt.title('Normalized ROI Boxplot')
+    plt.grid()
     plt.savefig('3_2_hist_boxplot/normalized_boxplot.png')
     return
 
