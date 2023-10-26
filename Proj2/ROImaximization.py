@@ -346,7 +346,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=7)
     plt.xlabel('RSI period to apply for long positions')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of RSI_long')
     plt.xlim([3.5, 24.5])
     plt.xticks(array_days) 
@@ -360,7 +360,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=7)
     plt.xlabel('RSI period to apply for short positions')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of RSI_short')
     plt.xlim([3.5, 24.5])
     plt.xticks(array_days)
@@ -374,7 +374,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)
     plt.xlabel('Lower band value to open a long position')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of LB_LP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
@@ -388,7 +388,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)
     plt.xlabel('Upper band value to close a long position')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of UP_LP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
@@ -402,7 +402,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)
     plt.xlabel('Lower band value to close a short position')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of LB_SP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
@@ -416,7 +416,7 @@ def generate_histograms(best_individuals):
     counts = [count / sum(counts) for count in counts]
     plt.bar(categories, counts, width=5)  
     plt.xlabel('Upper band value to open a short position')
-    plt.ylabel('Frequency')
+    plt.ylabel('Relative Frequency')
     plt.title('Histogram of UP_SP')
     plt.xlim([-2.5, 102.5])
     plt.xticks(array_multiples_five) 
