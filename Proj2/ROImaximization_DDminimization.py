@@ -283,7 +283,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     min_by_generationsDD = []
     
     # Evolution with a Early stopping strategy with patience = GAP_ANALYSED, and monitor = improve_perf
-    while g < GENERATIONS and improve_perf > PERF_THRESHOLD: #TODO TESTAR THRESHOLD
+    while g < GENERATIONS and improve_perf > PERF_THRESHOLD: 
         # A new generation
         g = g + 1
         
