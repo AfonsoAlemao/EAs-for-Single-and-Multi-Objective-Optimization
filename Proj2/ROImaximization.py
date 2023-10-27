@@ -301,7 +301,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             ind.fitness.values = fit
         # print("  Evaluated %i individuals" % len(invalid_ind))
         
-        # The population is entirely replaced by the pop + offspring
+        # The population is entirely replaced by selection applied to pop + offspring
         pop = toolbox.select(pop + offspring, INITIAL_POPULATION)
         
         # Update hall of fame

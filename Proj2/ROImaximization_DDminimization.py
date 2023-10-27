@@ -330,7 +330,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
             ind.fitness.values = fit
         # print("  Evaluated %i individuals" % len(invalid_ind))
         
-        # The population is entirely replaced by the pop + offspring
+        # The population is entirely replaced by selection applied to pop + offspring
         pop = toolbox.select(pop + offspring, INITIAL_POPULATION)
         
         # Gather all the fitnesses in one list
@@ -359,7 +359,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     # print("Best individual are %s, %s and %s, %s" % (best_ind[0], best_ind[0].fitness.values, best_ind[1], best_ind[1].fitness.values))
     # print('Obtained at generation ', g)
-    gen_results = [(max_by_generationsROI[i], min_by_generationsDD[i]) for i in range(len(max_by_generationsROI))]
+    # gen_results = [(max_by_generationsROI[i], min_by_generationsDD[i]) for i in range(len(max_by_generationsROI))]
     # print('Succesive generations', gen_results)
     
     return fit_maxROI, fit_minDD, best_ind, pareto
