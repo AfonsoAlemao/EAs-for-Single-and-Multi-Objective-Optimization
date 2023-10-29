@@ -1,3 +1,7 @@
+Authors:
+96135 - Afonso Brito Caiado Correia Alemão
+96317 - Rui Pedro Canário Daniel
+
 Run ComputeRSI.py
 - Calculates of the RSI for 7-day period, 14-day period, 21-day period and updates datasets
 
