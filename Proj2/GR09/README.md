@@ -7,7 +7,7 @@
 ## Instructions:
 
 ### Start by running ComputeRSI.py
-- Calculates of the RSI for 7-day period, 14-day period, 21-day period, and updates datasets
+- Calculates of the RSI for 7-day period, 14-day period, 21-day period, and updates datasets.
 
 ### Run ROImaximization.py: 
 Executes various tasks:
