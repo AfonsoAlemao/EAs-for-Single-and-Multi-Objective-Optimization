@@ -106,7 +106,7 @@ def evalROI(individual, csv_name, start_date, end_date):
 
     begin_LP = -1 # Share purchase value for LP
     end_LP = -1 # Share sale value for LP
-    begin_SP = -1 # Share sale value for LP
+    begin_SP = -1 # Share sale value for SP
     end_SP = -1 # Share purchase value for SP
     
     # Select RSI to use
@@ -164,7 +164,7 @@ def blending(individual1, individual2):
     for i in range(len(new_individual)):
         if i >= 2:
             factor = 5
-            new_individual[i] = (new_individual1[i] + new_individual2[i])/(2*factor)
+            new_individual[i] = (new_individual1[i] + new_individual2[i]) / (2 * factor)
             random_num = random.randint(0,1)
             if random_num == 0:
                 new_individual[i] = math.floor(new_individual[i]) * factor
@@ -176,8 +176,8 @@ def blending(individual1, individual2):
 
 # Register mutation operator:
 
-# Mutates LB_LP, UB_LP, LB_SP and UB_SP features, by introducing 
-# a small variation of $±5$, if possible.
+# Mutates LB_LP, UB_LP, LB_SP and UB_SP features with a probability of indpb, 
+# by introducing a small variation of ±5, if possible.
 def mutCustom_2(individual, indpb):
     new_individual = individual.copy()
     for i in range(2,len(new_individual)):
@@ -214,7 +214,6 @@ def mutCustom(individual, indpb):
     return new_individual   
 
 # toolbox.register('mutate', mutCustom, indpb = 0.5)
-
 
 # Operator for selecting individuals for breeding the next
 # generation
@@ -264,7 +263,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     improve_perf = INFINITY
     max_by_generations = []
     
-    # Evolution with a Early stopping strategy with patience = GAP_ANALYSED, and monitor = improve_perf
+    # Evolution with an Early stopping strategy with patience = GAP_ANALYSED, and monitor = improve_perf
     while g < GENERATIONS and improve_perf > PERF_THRESHOLD: 
         # A new generation
         g = g + 1

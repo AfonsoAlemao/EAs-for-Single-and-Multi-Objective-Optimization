@@ -107,7 +107,7 @@ def evalROI_DD(individual, csv_name, start_date, end_date):
 
     begin_LP = -1 # Share purchase value for LP
     end_LP = -1 # Share sale value for LP
-    begin_SP = -1 # Share sale value for LP
+    begin_SP = -1 # Share sale value for SP
     end_SP = -1 # Share purchase value for SP
     
     # Select RSI to use
@@ -183,7 +183,7 @@ def blending(individual1, individual2):
     for i in range(len(new_individual)):
         if i >= 2:
             factor = 5
-            new_individual[i] = (new_individual1[i] + new_individual2[i])/(2*factor)
+            new_individual[i] = (new_individual1[i] + new_individual2[i]) / (2 * factor)
             random_num = random.randint(0,1)
             if random_num == 0:
                 new_individual[i] = math.floor(new_individual[i]) * factor
@@ -240,7 +240,7 @@ toolbox.register("select", tools.selNSGA2)
 
 # Execute the optimization algorithm for a .csv file, in a certain data range
 def oa_csv(csv_name, start_date_training, end_date_training):
-    # Initialize the pareto front
+    # Initialize the Pareto Front
     pareto = tools.ParetoFront()
     
     # Create an initial population
@@ -268,7 +268,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     # Extracting all the fitnesses 
     fits = [ind.fitness.values[0] for ind in pop]
     
-    # Update pareto front
+    # Update Pareto Front
     pareto.update(pop)
     
     # Variable keeping track of the number of generations
@@ -282,7 +282,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     max_by_generationsROI = []
     min_by_generationsDD = []
     
-    # Evolution with a Early stopping strategy with patience = GAP_ANALYSED, and monitor = improve_perf
+    # Evolution with an Early stopping strategy with patience = GAP_ANALYSED, and monitor = improve_perf
     while g < GENERATIONS and improve_perf > PERF_THRESHOLD: 
         # A new generation
         g = g + 1
@@ -336,7 +336,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
         # Gather all the fitnesses in one list
         fits = [ind.fitness.values for ind in pop]
         
-        # Update hall of fame and pareto front
+        # Update hall of fame and Pareto Front
         pareto.update(pop)
         hof.update(pop)
         
@@ -352,7 +352,7 @@ def oa_csv(csv_name, start_date_training, end_date_training):
     
     # print("-- End of (successful) evolution --")
    
-    # Obtain the elements from pareto front with maximum ROI and with minimum DD
+    # Obtain the elements from Pareto Front with maximum ROI and with minimum DD
     index_ROI, fit_maxROI = max(enumerate(fits), key=lambda x: (x[1][0], -x[1][1]))
     index_DD, fit_minDD = min(enumerate(fits), key=lambda x: (x[1][1], -x[1][0]))
     best_ind = [pop[index_ROI], pop[index_DD]]
@@ -377,8 +377,8 @@ def generate_paretos(pareto_csvs):
         plt.grid()
         plt.savefig('3_4_1_pareto/3_4_1_pareto_' + csvs_names[i] + '.png')
 
-# Exercise 3.4.1: MOO Applied to Maximize Return on Investment (ROI) and Minimize Drawdown using Technical
-# Indicators.
+# Exercise 3.4.1: MOO Applied to Maximize Return on Investment (ROI) and Minimize Drawdown 
+# using Technical Indicators.
 # Apply MO OA to the complete data series values of each csv from Jan 2020 until Dec 2022
 def main3_4_1(start_date_training, end_date_training):
     result = pd.DataFrame()
@@ -391,8 +391,8 @@ def main3_4_1(start_date_training, end_date_training):
     final_minDD_DD = []
     pareto_csvs = []
     
-    # For each csv, execute N_RUNS obtaining the best individuals from each one (pareto front
-    # and the elements from the pareto front with maximum ROI and with minimum DD)
+    # For each csv, execute N_RUNS obtaining the best individuals from each one (Pareto Front
+    # and the elements from the Pareto Front with maximum ROI and with minimum DD)
     for name in csvs_names:
         list_maxROI = []
         list_minDD = []
@@ -445,7 +445,7 @@ def main3_4_2(start_date_training, end_date_training):
     train_final_minDD_ROI = []
     train_final_minDD_DD = []
     
-    # For each csv, execute N_RUNS obtaining the best individuals from each one (the whole pareto front) and test them
+    # For each csv, execute N_RUNS obtaining the best individuals from each one (the whole Pareto Front) and test them
     for name in csvs_names:
         list_maxROI = []
         list_minDD = []
